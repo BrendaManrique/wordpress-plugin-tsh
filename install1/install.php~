@@ -1,0 +1,271 @@
+<?php
+//WordPress 3.5 or more: $wpdb->get_charset_collate() support characters
+
+global $jal_db_version;
+$jal_db_version = '1.1';
+
+//Check Upgrade
+function myplugin_update_db_check() {
+    global $jal_db_version;
+    if ( get_site_option( 'jal_db_version' ) != $jal_db_version ) {
+        jal_install();
+    }
+}
+add_action( 'plugins_loaded', 'myplugin_update_db_check' );
+
+
+function jal_install() {
+	global $wpdb;
+	global $jal_db_version;
+
+	$table_name = $wpdb->base_prefix . 'tsh_calendarevents';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		eventId bigint(20) NOT NULL AUTO_INCREMENT,
+		user_id bigint(20) NOT NULL DEFAULT '0',
+		isAdmin int(1) NOT NULL DEFAULT '0',
+		isShared` int(1) NOT NULL DEFAULT '0',
+		isPublic` int(1) NOT NULL DEFAULT '0',
+		startDate` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		endDate timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		eventTitle varchar(50) CHARACTER SET utf8 NOT NULL,
+		eventDesc text COLLATE utf8_bin,
+		PRIMARY KEY  (eventId),
+		KEY empId (empId)
+	) $charset_collate;";
+	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_compiled';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		compileId bigint(20) NOT NULL AUTO_INCREMENT,
+  		compliedBy bigint(20) NOT NULL,
+  		weekNo int(2) unsigned zerofill NOT NULL,
+  		clockYear int(4) NOT NULL,
+  		dateComplied timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		PRIMARY KEY  (compileId),
+		KEY compliedBy (compliedBy)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_employees';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		empId bigint(20) NOT NULL AUTO_INCREMENT,
+		user_id bigint(20) NOT NULL DEFAULT '0',
+		isAdmin int(1) NOT NULL DEFAULT '0',
+		isMgr int(1) NOT NULL DEFAULT '0',
+		empDob timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		empSsn varchar(255) COLLATE utf8_bin DEFAULT NULL,
+		empPosition varchar(255) CHARACTER SET utf8 NOT NULL,
+		empPayGrade varchar(255) COLLATE utf8_bin NOT NULL,
+		empStartSalary varchar(255) COLLATE utf8_bin DEFAULT NULL,
+		empStartHourly varchar(255) COLLATE utf8_bin DEFAULT NULL,
+		empCurrSalery varchar(255) COLLATE utf8_bin DEFAULT NULL,
+		empCurrHourly varchar(255) COLLATE utf8_bin DEFAULT NULL,
+		empSalaryTerm varchar(100) COLLATE utf8_bin NOT NULL DEFAULT 'Year',
+		leaveHours int(3) NOT NULL DEFAULT '0',
+		empHireDate timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		isActive int(1) NOT NULL DEFAULT '0',
+		empLastVisited timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		empTerminationDate timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		terminationReason varchar(255) COLLATE utf8_bin DEFAULT NULL,
+		PRIMARY KEY  (empId),
+		KEY user_id (user_id)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_emptasks';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		empTaskId bigint(20) NOT NULL AUTO_INCREMENT,
+		assignedTo bigint(20) NOT NULL DEFAULT '0',
+		createdBy bigint(20) NOT NULL DEFAULT '0',
+		taskTitle varchar(50) COLLATE utf8_bin NOT NULL,
+		taskDesc longtext COLLATE utf8_bin NOT NULL,
+		taskNotes longtext COLLATE utf8_bin,
+		taskPriority varchar(50) COLLATE utf8_bin DEFAULT NULL,
+		taskStatus varchar(50) COLLATE utf8_bin DEFAULT NULL,
+		taskStart timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		taskDue timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		isClosed int(1) NOT NULL DEFAULT '0',
+		dateClosed timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		PRIMARY KEY  (empTaskId)
+		KEY assignedTo (assignedTo)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_leaveearned';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		earnedId bigint(20) NOT NULL AUTO_INCREMENT,
+		user_id bigint(20) NOT NULL DEFAULT '0',
+		weekNo int(2) unsigned zerofill NOT NULL,
+		clockYear int(4) NOT NULL,
+		leaveHours decimal(3,1) NOT NULL DEFAULT '0.0',
+		dateEntered timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		PRIMARY KEY  (earnedId),
+		KEY user_id (user_id)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_leavetaken';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		takenId bigint(20) NOT NULL AUTO_INCREMENT,
+		user_id bigint(20) NOT NULL DEFAULT '0',
+		clockYear int(4) NOT NULL,
+		hoursTaken decimal(3,1) NOT NULL DEFAULT '0.0',
+		dateEntered timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		PRIMARY KEY  (takenId),
+		KEY user_id (user_id)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_notices';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		noticeId bigint(20) NOT NULL AUTO_INCREMENT,
+		createdBy bigint(20) NOT NULL DEFAULT '0',
+		isActive int(1) NOT NULL DEFAULT '1',
+		noticeTitle varchar(255) COLLATE utf8_bin NOT NULL,
+		noticeText longtext COLLATE utf8_bin NOT NULL,
+		noticeDate timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		noticeStart timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		noticeExpires timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		PRIMARY KEY  (noticeId),
+		KEY createdBy (createdBy)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+
+
+	$table_name = $wpdb->base_prefix . 'tsh_privatemessages';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		messageId bigint(20) NOT NULL AUTO_INCREMENT,
+		fromId bigint(20) NOT NULL DEFAULT '0',
+		toId bigint(20) NOT NULL,
+		origId bigint(20) NOT NULL DEFAULT '0',
+		messageTitle varchar(50) CHARACTER SET utf8 NOT NULL,
+		messageText text COLLATE utf8_bin,
+		messageDate timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		toRead int(1) NOT NULL DEFAULT '0',
+		toArchived int(1) NOT NULL DEFAULT '0',
+		toDeleted int(1) NOT NULL DEFAULT '0',
+		fromDeleted int(1) NOT NULL DEFAULT '0',
+		lastUpdated timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		PRIMARY KEY  (messageId),
+		KEY toId (toId)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_sitesettings';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		allowRegistrations int(1) NOT NULL DEFAULT '0',
+		enableTimeEdits int(1) NOT NULL DEFAULT '0',
+		enablePii int(1) NOT NULL DEFAULT '0',
+		PRIMARY KEY  (allowRegistrations),
+		KEY enableTimeEdits (enableTimeEdits)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_timeclock';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		clockId bigint(20) NOT NULL AUTO_INCREMENT,
+		user_id bigint(20) NOT NULL DEFAULT '0',
+		weekNo int(2) unsigned zerofill NOT NULL,
+		clockYear int(4) NOT NULL,
+		running int(1) NOT NULL DEFAULT '0',
+		PRIMARY KEY  (clockId),
+		KEY user_id (user_id)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_timeedits';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		editId bigint(20) NOT NULL AUTO_INCREMENT,
+		entryId bigint(20) NOT NULL,
+		editedBy bigint(20) NOT NULL,
+		editedDate timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		origStartTime timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		origEndTime timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		editedStartTime timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		editedEndTime timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		editReason varchar(255) COLLATE utf8_bin NOT NULL,
+		PRIMARY KEY  (editId),
+		KEY entryId (entryId)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+	$table_name = $wpdb->base_prefix . 'tsh_timeentry';	
+	$charset_collate = $wpdb->get_charset_collate();
+	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
+		entryId bigint(20) NOT NULL AUTO_INCREMENT,
+		clockId bigint(20) NOT NULL,
+		user_id bigint(20) NOT NULL DEFAULT '0',
+		entryDate date NOT NULL DEFAULT '0000-00-00',
+		startTime timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		endTime timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		entryType bigint(20) NOT NULL DEFAULT '1',
+		PRIMARY KEY  (entryId),
+		KEY user_id (user_id)
+	) $charset_collate;";
+	dbDelta( $sql );
+
+
+	add_option( 'jal_db_version', $jal_db_version );
+
+	//For Upgrade
+/*
+	global $wpdb;
+	$installed_ver = get_option( "jal_db_version" );
+
+	if ( $installed_ver != $jal_db_version ) {
+
+		$table_name = $wpdb->prefix . 'liveshoutbox';
+
+		$sql = "CREATE TABLE $table_name (
+			id mediumint(9) NOT NULL AUTO_INCREMENT,
+			time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
+			name tinytext NOT NULL,
+			text text NOT NULL,
+			url varchar(100) DEFAULT '' NOT NULL,
+			UNIQUE KEY id (id)
+		);";
+
+		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+		dbDelta( $sql );
+
+		update_option( "jal_db_version", $jal_db_version );
+	}
+*/	
+}
+
+function jal_install_data() {
+	global $wpdb;
+	
+	$welcome_name = 'Mr. WordPress';
+	$welcome_text = 'Congratulations, you just completed the installation!';
+	
+	$table_name = $wpdb->prefix . 'employees';
+	
+	$wpdb->insert( 
+		$table_name, 
+		array( 
+			'time' => current_time( 'mysql' ), 
+			'name' => $welcome_name, 
+			'text' => $welcome_text, 
+		) 
+	);
+}
+
+register_activation_hook( __FILE__, 'jal_install' );
+//register_activation_hook( __FILE__, 'jal_install_data' );
+
+
+?>
