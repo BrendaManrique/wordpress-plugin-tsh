@@ -1,13 +1,14 @@
 <?php
 	// Get Settings Data
-	$setSql  = "
+	$table_name = $wpdb->base_prefix . 'tsh_sitesettings';
+	$query  = "
 		SELECT
 			allowRegistrations,
 			localization,
 			enableTimeEdits,
 			enablePii
 		FROM
-			wp_tsh_sitesettings
+			$table_name
 	";
-	$setRes = mysqli_query($mysqli, $setSql) or die('-99' . mysqli_error());
+	$records = $wpdb->get_results($query);
 ?>

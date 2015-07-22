@@ -37,44 +37,49 @@ add_action( 'wp_enqueue_scripts', 'pd101_load_styles' );*/
 **************/
 include('install/install.php'); 
 
-/* Get Settings Data
+// Get Settings Data
 include ('includes/settings.php');
-$set = mysqli_fetch_assoc($setRes);
-
-// Set Localization
-$local = $set['localization'];
-switch ($local) {
-	case 'ar':		include ('language/ar.php');		break;
-	case 'bg':		include ('language/bg.php');		break;
-	case 'ce':		include ('language/ce.php');		break;
-	case 'cs':		include ('language/cs.php');		break;
-	case 'da':		include ('language/da.php');		break;
-	case 'en':		include ('language/en.php');		break;
-	case 'en-ca':	include ('language/en-ca.php');		break;
-	case 'en-gb':	include ('language/en-gb.php');		break;
-	case 'es':		include ('language/es.php');		break;
-	case 'fr':		include ('language/fr.php');		break;
-	case 'ge':		include ('language/ge.php');		break;
-	case 'hr':		include ('language/hr.php');		break;
-	case 'hu':		include ('language/hu.php');		break;
-	case 'hy':		include ('language/hy.php');		break;
-	case 'id':		include ('language/id.php');		break;
-	case 'it':		include ('language/it.php');		break;
-	case 'ja':		include ('language/ja.php');		break;
-	case 'ko':		include ('language/ko.php');		break;
-	case 'nl':		include ('language/nl.php');		break;
-	case 'pt':		include ('language/pt.php');		break;
-	case 'ro':		include ('language/ro.php');		break;
-	case 'sv':		include ('language/sv.php');		break;
-	case 'th':		include ('language/th.php');		break;
-	case 'vi':		include ('language/vi.php');		break;
-	case 'yue':		include ('language/yue.php');		break;
+$records = $wpdb->get_results($query);
+if(!empty($records[0])){
+	// Set Localization
+	$local = $records[0]->localization;
+	switch ($local) {
+		case 'ar':		include ('language/ar.php');		break;
+		case 'bg':		include ('language/bg.php');		break;
+		case 'ce':		include ('language/ce.php');		break;
+		case 'cs':		include ('language/cs.php');		break;
+		case 'da':		include ('language/da.php');		break;
+		case 'en':		include ('language/en.php');		break;
+		case 'en-ca':	include ('language/en-ca.php');		break;
+		case 'en-gb':	include ('language/en-gb.php');		break;
+		case 'es':		include ('language/es.php');		break;
+		case 'fr':		include ('language/fr.php');		break;
+		case 'ge':		include ('language/ge.php');		break;
+		case 'hr':		include ('language/hr.php');		break;
+		case 'hu':		include ('language/hu.php');		break;
+		case 'hy':		include ('language/hy.php');		break;
+		case 'id':		include ('language/id.php');		break;
+		case 'it':		include ('language/it.php');		break;
+		case 'ja':		include ('language/ja.php');		break;
+		case 'ko':		include ('language/ko.php');		break;
+		case 'nl':		include ('language/nl.php');		break;
+		case 'pt':		include ('language/pt.php');		break;
+		case 'ro':		include ('language/ro.php');		break;
+		case 'sv':		include ('language/sv.php');		break;
+		case 'th':		include ('language/th.php');		break;
+		case 'vi':		include ('language/vi.php');		break;
+		case 'yue':		include ('language/yue.php');		break;
+	}
+}else
+{
+	include ('language/en.php');	
 }
-*/
+
+
 // Include Functions
 //include('includes/functions.php');
 
-
+include ('language/en.php');
 
 /*************
 * Main Menu
@@ -99,10 +104,16 @@ function timesheet_menu_dashboard(){
 	
 ?>
 <div class="wrap">
-<h4> A hello worldddd</h4>
+<h4> A hello worldddd  </h4>
 
+<div class="form-group">
+								<label for="empFirst"><?php echo $firstNameField; ?> <sup><?php echo $reqField; ?></sup></label>
+								<input type="text" class="form-control" required="" name="empFirst" value="<?php echo isset($_POST['empFirst']) ? $_POST['empFirst'] : ''; ?>" />
+							</div>
 
 <?php
+
+
 include('pages/dashboard.php');
 ?>
 </div>

@@ -2,13 +2,14 @@
 //WordPress 3.5 or more: $wpdb->get_charset_collate() support characters
 
 global $jal_db_version;
-$jal_db_version = '1.3';
+$jal_db_version = '1.7';
 
 //Check Upgrade
 function myplugin_update_db_check() {
     global $jal_db_version;
     if ( get_site_option( 'jal_db_version' ) != $jal_db_version ) {
         jal_install();
+        
     }
 }
 add_action( 'plugins_loaded', 'myplugin_update_db_check' );
@@ -168,7 +169,7 @@ function jal_install() {
 		allowRegistrations int(1) NOT NULL DEFAULT '0',
 		enableTimeEdits int(1) NOT NULL DEFAULT '0',
 		enablePii int(1) NOT NULL DEFAULT '0',
-		PRIMARY KEY  (allowRegistrations),
+		PRIMARY KEY  (localization),
 		KEY enableTimeEdits (enableTimeEdits)
 	) $charset_collate;";
 	dbDelta( $sql );
@@ -221,22 +222,20 @@ function jal_install() {
 
 	add_option( 'jal_db_version', $jal_db_version );
 
+
+
+
 	//For Upgrade
-/*
+
 	global $wpdb;
 	$installed_ver = get_option( "jal_db_version" );
 
 	if ( $installed_ver != $jal_db_version ) {
 
-		$table_name = $wpdb->prefix . 'liveshoutbox';
+		$table_name = $wpdb->base_prefix . 'tsh_sitesettings';
 
-		$sql = "CREATE TABLE $table_name (
-			id mediumint(9) NOT NULL AUTO_INCREMENT,
-			time datetime DEFAULT '0000-00-00 00:00:00' NOT NULL,
-			name tinytext NOT NULL,
-			text text NOT NULL,
-			url varchar(100) DEFAULT '' NOT NULL,
-			UNIQUE KEY id (id)
+		$sql = "ALTER TABLE $table_name
+			ADD localization varchar(10) COLLATE utf8_bin NOT NULL DEFAULT 'en'
 		);";
 
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -244,29 +243,25 @@ function jal_install() {
 
 		update_option( "jal_db_version", $jal_db_version );
 	}
-*/	
+	
 }
 
 function jal_install_data() {
 	global $wpdb;
 	
-	$welcome_name = 'Mr. WordPress';
-	$welcome_text = 'Congratulations, you just completed the installation!';
-	
-	$table_name = $wpdb->prefix . 'employees';
+	$table_name = $wpdb->base_prefix . 'tsh_sitesettings';
+	$default_sitesettings_localization = 'en';	
 	
 	$wpdb->insert( 
 		$table_name, 
 		array( 
-			'time' => current_time( 'mysql' ), 
-			'name' => $welcome_name, 
-			'text' => $welcome_text, 
+			'localization' => $default_sitesettings_localization,
 		) 
 	);
 }
 
 register_activation_hook( __FILE__, 'jal_install' );
-//register_activation_hook( __FILE__, 'jal_install_data' );
+register_activation_hook( __FILE__, 'jal_install_data' );
 
 
 ?>
