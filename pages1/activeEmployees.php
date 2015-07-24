@@ -20,7 +20,7 @@
 	}
 
 	// Include Pagination Class
-	include('includes/pagination.php');
+	//include('includes/pagination.php');
 
 	// Create new object & pass in the number of pages and an identifier
 	$pages = new paginator($pagPages,'p');
@@ -50,7 +50,7 @@
 				empId ".$pages->get_limit();
     $res = mysqli_query($mysqli, $query) or die('-1'.mysqli_error());
 
-	include 'includes/navigation.php';
+	//include 'includes/navigation.php';
 
 	if (($isAdmin != '1') && ($isMgr != '1')) {
 ?>

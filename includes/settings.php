@@ -10,5 +10,5 @@
 		FROM
 			$table_name
 	";
-	$records = $wpdb->get_results($query);
+
 ?>

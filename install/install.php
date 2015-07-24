@@ -2,13 +2,14 @@
 //WordPress 3.5 or more: $wpdb->get_charset_collate() support characters
 
 global $jal_db_version;
-$jal_db_version = '1.7';
+$jal_db_version = '1.72';
 
 //Check Upgrade
 function myplugin_update_db_check() {
     global $jal_db_version;
     if ( get_site_option( 'jal_db_version' ) != $jal_db_version ) {
         jal_install();
+
         
     }
 }
@@ -251,11 +252,27 @@ function jal_install_data() {
 	
 	$table_name = $wpdb->base_prefix . 'tsh_sitesettings';
 	$default_sitesettings_localization = 'en';	
-	
 	$wpdb->insert( 
 		$table_name, 
 		array( 
 			'localization' => $default_sitesettings_localization,
+		) 
+	);
+
+
+	$table_name = $wpdb->base_prefix . 'tsh_employees';
+	$default_employees_user_id = get_current_user_id();	
+	$default_employees_isAdmin = $default_employees_isActive = '1';
+	$default_employees_empPosition = 'Site Administrator';
+	$default_employees_empHireDate = date("Y-m-d H:i:s");
+	$wpdb->insert( 
+		$table_name, 
+		array( 
+			'user_id' => $default_employees_user_id,
+			'isAdmin' => $default_employees_isAdmin,
+			'isActive' => $default_employees_isActive,
+			'empPosition' => $default_employees_empPosition,
+			'empHireDate' => $default_employees_empHireDate,
 		) 
 	);
 }

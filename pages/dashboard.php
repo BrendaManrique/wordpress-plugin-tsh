@@ -1,9 +1,9 @@
 <?php
-/*	$jsFile = 'dashboard';
+	$jsFile = 'dashboard';
 
 	// Start/Stop the Time Clock
-	if (isset($_POST['submit']) && $_POST['submit'] == 'toggleTime') {
-		$isRecord = $mysqli->real_escape_string($_POST['isRecord']);
+	if (isset($_POST['submit']) ) {
+		$isRecord = $_POST['isRecord'];
 
 		if ($isRecord != '0') {
 			// Record All Ready Exists
@@ -412,4 +412,4 @@
 			</div>
 		<?php } ?>
 	</div>
-<?php }*/ ?>
+<?php } ?>
