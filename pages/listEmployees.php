@@ -76,31 +76,16 @@ class Employees_List_Table extends WP_List_Table
      */
     function column_default($item, $column_name)
     {
-        return $item[$column_name];
+        switch( $column_name ) { 
+    		case 'user_id':   return $this->column_name($item);
+        	case 'empPosition': return $this->column_empPosition($item);
+   			default: return $item[ $column_name ];
+   		}
+
     }
 
-    /**
-     * [OPTIONAL] this is example, how to render specific column
-     *
-     * method name must be like this: "column_[column_name]"
-     *
-     * @param $item - row (key, value array)
-     * @return HTML
-     */
-    function column_age($item)
-    {
-        return '<em>' . $item['user_id'] . '</em>';
-    }
-
-    /**
-     * [OPTIONAL] this is example, how to render column with actions,
-     * when you hover row "Edit | Delete" links showed
-     *
-     * @param $item - row (key, value array)
-     * @return HTML
-     */
     function column_name($item)
-    {
+    {	$user_info = get_userdata( $item['user_id']);
         // links going to /admin.php?page=[your_plugin_page][&other_params]
         // notice how we used $_REQUEST['page'], so action will be done on curren page
         // also notice how we use $this->_args['singular'] so in this example it will
@@ -111,10 +96,43 @@ class Employees_List_Table extends WP_List_Table
         );
 
         return sprintf('%s %s',
-            $item['empPosition'],
+           $user_info->user_login,
             $this->row_actions($actions)
         );
     }
+
+    /**
+     * [OPTIONAL] this is example, how to render specific column
+     *
+     * method name must be like this: "column_[column_name]"
+     *
+     * @param $item - row (key, value array)
+     * @return HTML
+     */
+    function column_empPosition($item)
+    {
+        return '<em>' . $item['empPosition'] . '</em>';
+    }
+
+    function column_isAdmin($item)
+    {
+        if($item['isAdmin']==1){
+        	return  'Yes' ;
+        }else{
+        	return  '' ;
+        }
+        
+    }
+    function column_isMgr($item)
+    {
+        if($item['isMgr']==1){
+        	return  'Manager' ;
+        }else{
+        	return  'Employee' ;
+        }
+        
+    }
+
 
     /**
      * [REQUIRED] this is how checkbox column renders
@@ -141,9 +159,12 @@ class Employees_List_Table extends WP_List_Table
     {
         $columns = array(
             'cb' => '<input type="checkbox" />', //Render a checkbox instead of text
-            'empId' => __('Name', 'employee_list_table'),
-            'user_id' => __('E-Mail', 'employee_list_table'),
-            'empPosition' => __('Age', 'employee_list_table'),
+           // 'empId' => __('Name', 'employee_list_table'),
+            'user_id' => __('Employee', 'employee_list_table'),
+            'empPosition' => __('Position', 'employee_list_table'),
+            'empHireDate' => __('Date of Hire', 'employee_list_table'),
+            'isAdmin' => __('Administrator', 'employee_list_table'),
+            'isMgr' => __('Account Type', 'employee_list_table'),
         );
         return $columns;
     }
@@ -161,6 +182,7 @@ class Employees_List_Table extends WP_List_Table
             'user_id' => array('user_id', true),
             'empPosition' => array('empPosition', false),
             'isAdmin' => array('isAdmin', false),
+            'empHireDate' => array('empHireDate', false),
         );
         return $sortable_columns;
     }

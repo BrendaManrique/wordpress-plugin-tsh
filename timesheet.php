@@ -19,6 +19,14 @@ $wplc_basic_plugin_url = get_option('siteurl') . "/wp-content/plugins/wp-timeshe
 global $wpdb;
 
 
+
+add_action('admin_menu','wphidenag');
+
+	function wphidenag() {
+
+	remove_action( 'admin_notices', 'update_nag', 3 );
+
+	}
 /*************
 * css
 **************
@@ -91,45 +99,41 @@ function register_timesheet_menu(){
 
     add_menu_page('page_timesheet', 'Time Sheet', 'manage_options', 'timesheet_dashboard','timesheet_menu_dashboard', plugins_url( 'wp-timesheet/images/bullet.png' ), 6 ); 
 
-    add_submenu_page('timesheet_dashboard', 'page_timesheet_dashboard', 'TSH Dashboard', 'manage_options', 'timesheet_dashboard' );
+    $dashboard_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_dashboard', 'TSH Dashboard', 'manage_options', 'timesheet_dashboard' );
 
     add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'manage_options', 'timesheet_mytime',  'timesheet_menu_mytime');
 
     add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'timesheet_newemployee',  'timesheet_menu_newEmployee');  
- add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'timesheet_listemployees',  'timesheet_menu_listEmployees');  
+ 	add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'timesheet_listemployees',  'timesheet_menu_listEmployees');  
 
+// Load the JS conditionally
+        add_action( 'load-' . $dashboard_style, 'load_admin_js' );
 }
-
+function load_admin_js(){
+        // Unfortunately we can't just enqueue our scripts here - it's too early. So register against the proper action hook to do it
+        add_action( 'admin_enqueue_scripts', 'enqueue_admin_js' );
+    }
+     function enqueue_admin_js(){
+        // Isn't it nice to use dependencies and the already registered core js files?
+        wp_enqueue_script( 'custom-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/custom.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
+   		wp_enqueue_style('custom',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/custom.css');
+ 		wp_enqueue_style('bootstrap',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/bootstrap.css');
+ 		wp_enqueue_script( 'dashboard-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/includes/dashboard.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
+   		wp_enqueue_style('font-awesome',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/font-awesome.css');
+ 		wp_enqueue_style('timezone',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/timezone.css');
+ 		
+    }
 
 function timesheet_menu_dashboard(){
 	include ('language/en.php');	
-	wp_register_style('custom', plugins_url('css/custom.css'));
-  	wp_enqueue_style('custom');
-  	wp_register_style('timezone', plugins_url('css/timezone.css'));
-  	wp_enqueue_style('timezone');
- 	 wp_enqueue_script('dashboard', plugins_url('dashboard.js', __FILE__ ), array('jquery'));
+	// wp_enqueue_script('datetimepicker');
+  //  wp_enqueue_style('datetimepicker',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/custom.css');
+ //wp_enqueue_script('datetimepicker1');
+//    wp_enqueue_style('datetimepicker1',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/bootstrap.css');
+
 ?>
 <div class="wrap">
-<h4> A hello worldddd  </h4>
 
-<div class="dashBlk">
-				<div class="iconBlk success">
-					<i class="fa fa-clock-o"></i>
-				</div>
-				<div class="contentBlk">
-					You are currently<br>
-					<span class="clockstatus workStatus">Clocked Out</span>
-					<form action="" method="post" class="clockBtn">
-						<input name="clockId" value="2" type="hidden">
-						<input name="entryId" value="" type="hidden">
-						<input name="weekNo" value="30" type="hidden">
-						<input name="clockYear" value="2015" type="hidden">
-						<input name="running" id="running" value="0" type="hidden">
-						<input name="isRecord" id="isRecord" value="1" type="hidden">
-						<button type="input" name="submit" id="timetrack" value="toggleTime" class="btn btn-lg btn-icon btn-success"><i class="fa fa-sign-in"></i> <span>Clock In</span></button>
-					</form>
-				</div>
-			</div>
 
 <?php
 

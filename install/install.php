@@ -2,13 +2,14 @@
 //WordPress 3.5 or more: $wpdb->get_charset_collate() support characters
 
 global $jal_db_version;
-$jal_db_version = '1.72';
+$jal_db_version = '1.76';
 
 //Check Upgrade
 function myplugin_update_db_check() {
     global $jal_db_version;
     if ( get_site_option( 'jal_db_version' ) != $jal_db_version ) {
         jal_install();
+        jal_install_data();
 
         
     }
@@ -73,6 +74,8 @@ function jal_install() {
 		empLastVisited timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
 		empTerminationDate timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
 		terminationReason varchar(255) COLLATE utf8_bin DEFAULT NULL,
+		lastUpdateTime timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+		lastUpdateUser bigint(20) NOT NULL DEFAULT '0',
 		PRIMARY KEY  (empId),
 		KEY user_id (user_id)
 	) $charset_collate;";
@@ -249,6 +252,8 @@ function jal_install() {
 
 function jal_install_data() {
 	global $wpdb;
+	global $current_user;
+	get_currentuserinfo();
 	
 	$table_name = $wpdb->base_prefix . 'tsh_sitesettings';
 	$default_sitesettings_localization = 'en';	
@@ -261,10 +266,12 @@ function jal_install_data() {
 
 
 	$table_name = $wpdb->base_prefix . 'tsh_employees';
-	$default_employees_user_id = get_current_user_id();	
+	$default_employees_user_id = $current_user->ID;	
 	$default_employees_isAdmin = $default_employees_isActive = '1';
 	$default_employees_empPosition = 'Site Administrator';
 	$default_employees_empHireDate = date("Y-m-d H:i:s");
+	$default_employees_lastUpdateTime = date("Y-m-d H:i:s");
+	$default_employees_lastUpdateUser = $current_user->ID;	
 	$wpdb->insert( 
 		$table_name, 
 		array( 
@@ -273,6 +280,8 @@ function jal_install_data() {
 			'isActive' => $default_employees_isActive,
 			'empPosition' => $default_employees_empPosition,
 			'empHireDate' => $default_employees_empHireDate,
+			'lastUpdateTime' => $default_employees_lastUpdateTime,
+			'lastUpdateUser' => $default_employees_lastUpdateUser,
 		) 
 	);
 }

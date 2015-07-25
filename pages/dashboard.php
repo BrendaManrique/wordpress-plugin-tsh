@@ -1,4 +1,13 @@
 <?php
+//wp_enqueue_style( 'prfx_meta_box_styles', plugin_dir_url( __FILE__ ) . 'meta-box-styles.css' );
+global $wpdb;
+
+$table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
+$table_name_timeentry = $wpdb->base_prefix . 'tsh_timeentry';
+global $current_user;
+get_currentuserinfo();
+$user_id = $current_user->ID;	
+
 	$jsFile = 'dashboard';
 
 	// Start/Stop the Time Clock
@@ -6,191 +15,93 @@
 		$isRecord = $_POST['isRecord'];
 
 		if ($isRecord != '0') {
-			// Record All Ready Exists
-			$clockId = $mysqli->real_escape_string($_POST['clockId']);
-			$entryId = $mysqli->real_escape_string($_POST['entryId']);
-			$weekNo = $mysqli->real_escape_string($_POST['weekNo']);
-			$clockYear = $mysqli->real_escape_string($_POST['clockYear']);
-			$running = $mysqli->real_escape_string($_POST['running']);
+			// Record Already Exists
+			$clockId = sanitize_text_field($_POST['clockId']);
+			$entryId = sanitize_text_field($_POST['entryId']);
+			$weekNo = sanitize_text_field($_POST['weekNo']);
+			$clockYear = sanitize_text_field($_POST['clockYear']);
+			$running = sanitize_text_field($_POST['running']);
 			$entryDate = $endTime = date("Y-m-d");
 			$startTime = $endTime = date("Y-m-d H:i:s");
 
 			if ($running == '0') {
 				// Start Clock - Update the timeclock Record
-				$sqlstmt = $mysqli->prepare("
-									UPDATE
-										timeclock
-									SET
-										running = 1
-									WHERE
-										clockId = ?
-				");
-				$sqlstmt->bind_param('s',$clockId);
-				$sqlstmt->execute();
-				$sqlstmt->close();
+				$default_sitesettings_localization = 'en';	
+				$wpdb->update($table_name_timeclock, array( 'running' => 1),"WHERE clockId =".$clockId);
+				
 
 				// Start Clock - Add a new time entry
-				$stmt = $mysqli->prepare("
-									INSERT INTO
-										timeentry(
-											clockId,
-											empId,
-											entryDate,
-											startTime
-										) VALUES (
-											?,
-											?,
-											?,
-											?
-										)
-				");
-				$stmt->bind_param('ssss',
-									$clockId,
-									$empId,
-									$entryDate,
-									$startTime
-				);
-				$stmt->execute();
-				$stmt->close();
+				$wpdb->insert( 	$table_name_timeentry,array( 
+								'clockId' => $clockId,
+								'user_id' => $user_id,
+								'entryDate' => $entryDate,
+								'startTime' => $startTime	) 
+							);
 			} else {
 				// Stop Clock - Update the timeclock Record
-				$sqlstmt = $mysqli->prepare("
-									UPDATE
-										timeclock
-									SET
-										running = 0
-									WHERE
-										clockId = ?
-				");
-				$sqlstmt->bind_param('s',$clockId);
-				$sqlstmt->execute();
-				$sqlstmt->close();
+				$wpdb->update($table_name_timeclock, array( 'running' => 0),"WHERE clockId =".$clockId);
 
 				// Stop Clock - Update the time entry
-				$stmt = $mysqli->prepare("
-									UPDATE
-										timeentry
-									SET
-										endTime = ?
-									WHERE
-										entryId = ?
-				");
-				$stmt->bind_param('ss',
-									$endTime,
-									$entryId
-				);
-				$stmt->execute();
-				$stmt->close();
+				$wpdb->update($table_name_timeentry, array( 'endTime' => $endTime),"WHERE entryId =".$entryId);
+				
 			}
 		} else {
 			// Record Does Not Exist
 			// Start Clock - Create a timeclock Record
-			$weekNo = $mysqli->real_escape_string($_POST['weekNo']);
-			$clockYear = $mysqli->real_escape_string($_POST['clockYear']);
+			$weekNo = sanitize_text_field($_POST['weekNo']);
+			$clockYear = sanitize_text_field($_POST['clockYear']);
 			$running = '1';
 			$startTime = date("Y-m-d H:i:s");
 
-			$sqlstmt = $mysqli->prepare("
-								INSERT INTO
-									timeclock(
-										empId,
-										weekNo,
-										clockYear,
-										running
-									) VALUES (
-										?,
-										?,
-										?,
-										?
-									)
-			");
-			$sqlstmt->bind_param('ssss',
-									$empId,
-									$weekNo,
-									$clockYear,
-									$running
+			$wpdb->insert( $table_name_timeclock, array( 
+					'user_id' => $user_id,
+					'weekNo' => $weekNo,
+					'clockYear' => $clockYear,
+					'running' => $running,
+				) 
 			);
-			$sqlstmt->execute();
-			$sqlstmt->close();
-
+        	
 			// Get the new Tracking ID
-			$track_id = $mysqli->query("SELECT clockId FROM timeclock WHERE empId = ".$empId." AND weekNo = '".$weekNo."' AND clockYear = ".$currentYear);
-			$id = mysqli_fetch_assoc($track_id);
+			$track_id = $wpdb->get_results($query("SELECT clockId FROM $table_name_timeclock  WHERE user_id = ".$user_id." AND weekNo = ".$weekNo." AND clockYear = ".$currentYear), ARRAY_A);
+			$id = $track_id;// mysqli_fetch_assoc($track_id);
 			$clockId = $id['clockId'];
 			$entryDate = $endTime = date("Y-m-d");
 
 			// Start Clock - Add a new time entry
-			$stmt = $mysqli->prepare("
-								INSERT INTO
-									timeentry(
-										clockId,
-										empId,
-										entryDate,
-										startTime
-									) VALUES (
-										?,
-										?,
-										?,
-										?
-									)
-			");
-			$stmt->bind_param('ssss',
-								$clockId,
-								$empId,
-								$entryDate,
-								$startTime
+			$wpdb->insert( $table_name_timeentry, array( 
+					'clockId' => $clockId,
+					'user_id' => $user_id,
+					'entryDate' => $entryDate,
+					'startTime' => $startTime,
+				) 
 			);
-			$stmt->execute();
-			$stmt->close();
 		}
 	}
 
 	// Check for an Existing Record
-	$check = $mysqli->query("SELECT 'X' FROM timeclock WHERE empId = ".$empId." AND weekNo = '".$weekNum."'");
-	if ($check->num_rows) {
-		$checked = "SELECT
-						clockId,
-						empId,
-						weekNo,
-						clockYear,
-						running
-					FROM
-						timeclock
-					WHERE
-						empId = ".$empId." AND weekNo = '".$weekNum."'";
-		$checkres = mysqli_query($mysqli, $checked) or die('-1'.mysqli_error());
-		$col = mysqli_fetch_assoc($checkres);
+	$wpdb-> get_results( $query = "SELECT * FROM $table_name_timeclock WHERE user_id = $user_id AND weekNo = $weekNo;");
+	echo 'hhhhhhhhhhhhhhhhhh'.$wpdb->num_rows;
+	if ($wpdb->num_rows) {
+
+		$col =  $wpdb->get_results($query("SELECT clockId,user_id,weekNo,clockYear,running FROM $table_name_timeclock  WHERE user_id = ".$user_id." AND weekNo = ".$weekNo), ARRAY_A);
 		$clockId = $col['clockId'];
 		$running = $col['running'];
 
-		$sel = "SELECT
-					clockId,
-					entryId
-				FROM
-					timeentry
-				WHERE
-					clockId = ".$clockId." AND
-					empId = ".$empId." AND
-					endTime = '0000-00-00'";
-		$selresult = mysqli_query($mysqli, $sel) or die('-2'.mysqli_error());
-		$rows = mysqli_fetch_assoc($selresult);
+		$rows = $wpdb->get_results($query("SELECT clockId,user_id FROM $table_name_timeentry  WHERE clockId = ".$clockId." AND user_id = ".$user_id." endTime = '0000-00-00'"));
 		$entryId = (is_null($rows['entryId'])) ? '' : $rows['entryId'];
 		$isRecord = '1';
 
 		// Get Total Time Worked for the Current Week
-		$qry1 = "SELECT
-					TIMEDIFF(timeentry.endTime,timeentry.startTime) AS diff
-				FROM
-					timeclock
-					LEFT JOIN timeentry ON timeclock.clockId = timeentry.clockId
-				WHERE
-					timeclock.empId = ".$empId." AND
-					timeclock.weekNo = '".$weekNum."' AND
-					timeclock.clockYear = '".$currentYear."' AND
-					timeentry.endTime != '0000-00-00 00:00:00'";
-		$results = mysqli_query($mysqli, $qry1) or die('-3'.mysqli_error());
+		$u = $wpdb->get_results(
+			$query("SELECT TIMEDIFF($table_name_timeentry.endTime,$table_name_timeentry.startTime) AS diff
+			 FROM $table_name_timeclock
+					LEFT JOIN $table_name_timeentry ON $table_name_timeclock.clockId = $table_name_timeentry.clockId
+			WHERE  $table_name_timeclock.user_id = ".$user_id." AND
+					$table_name_timeclock.weekNo = ".$weekNo." AND
+					$table_name_timeclock.clockYear = '".$currentYear."' AND
+					$table_name_timeclock.endTime != '0000-00-00 00:00:00'"));
 		$times = array();
-		while ($u = mysqli_fetch_assoc($results)) {
+		while ($u) {
 			$times[] = $u['diff'];
 		}
 		$totalTime = sumHours($times);
@@ -202,9 +113,9 @@
 	}
 
 	// Get Unread Message Count
-	$unreadsql = "SELECT 'X' FROM privatemessages WHERE toId = ".$empId." AND toRead = 0";
-	$unreadtotal = mysqli_query($mysqli, $unreadsql) or die('-4'.mysqli_error());
-	$unread = mysqli_num_rows($unreadtotal);
+	/*$unreadsql = "SELECT 'X' FROM privatemessages WHERE toId = ".$empId." AND toRead = 0";
+	$unreadtotal = mysql_query($mysqli, $unreadsql) or die('-4'.mysql_error());
+	$unread = mysql_num_rows($unreadtotal);
 
 	// Get Notice Data
     $sqlSmt  = "SELECT
@@ -269,9 +180,10 @@
 			LIMIT 3";
 	$result = mysqli_query($mysqli, $stmt) or die('-7'.mysqli_error());
 
-	include ('includes/navigation.php');
+	*/
 ?>
 <div class="contentAlt">
+<h2>TimeSheet Dashboard</h2></br>
 	<div class="row">
 		<div class="col-md-4">
 			<div class="dashBlk">
@@ -318,7 +230,7 @@
 					<form action="" method="post" class="clockBtn">
 						<input type="hidden" name="clockId" value="<?php echo $clockId; ?>" />
 						<input type="hidden" name="entryId" value="<?php echo $entryId; ?>" />
-						<input type="hidden" name="weekNo" value="<?php echo $weekNum; ?>" />
+						<input type="hidden" name="weekNo" value="<?php echo $weekNo; ?>" />
 						<input type="hidden" name="clockYear" value="<?php echo $currentYear; ?>" />
 						<input type="hidden" name="running" id="running" value="<?php echo $running; ?>" />
 						<input type="hidden" name="isRecord" id="isRecord" value="<?php echo $isRecord; ?>" />

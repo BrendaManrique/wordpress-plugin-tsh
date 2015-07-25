@@ -1,113 +1,24 @@
 <?php
 
-//require_once(get_option('siteurl') . '/wp-load.php');
-/*
-	$datePicker = 'true';
-	$jsFile = 'newEmployee';
-	global $wpdb;
 
+//Al guardar la modificacion, nombre se guarda como 0;
 
-	// Add New Employee Account
-	if (isset($_POST['submit']) ) {
-        // Validation
-      $isActive = '1';
+function my_scripts_method() {
+	wp_enqueue_script(
+		'datetimepicker',
+		get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/datetimepicker.js',
+		array( 'jquery' )
+	);
+		wp_enqueue_script(
+		'datetimepicker',
+		get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/jquery.js',
+		array( 'jquery' )
+	);
+		wp_register_script( 'my-plugin-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/jquery.js');
+		wp_enqueue_script( 'my-plugin-script' );
+}
 
-			$setUser = $_POST['setUser'];
-			$empHireDate = $_POST['empHireDate'].' 00:00:00';
-			$setAdmin = $_POST['setAdmin'];
-			$setManager = $_POST['setManager'];
-		
-
-			$table_name = $wpdb->base_prefix . 'tsh_employees';
-			$wpdb->insert( 
-				$table_name, 
-				array( 
-					'user_id' => $setUser,
-					'empHireDate' => $empHireDate,
-					'isAdmin' => $setAdmin,
-					'isMgr' => $setManager,
-				) 
-			);
-									
-			//$msgBox = alertBox($empAcctCreatedMsg, "<i class='fa fa-check-square'></i>", "success");
-			// Clear the form of Values
-			$_POST['empFirst']  = $_POST['empHireDate'] = '';
-			
-		}
-		
-	
-
-
-	/*if ($isAdmin != '1') {
-?>
-	<div class="content">
-		<h3><?php echo $accessErrorHeader; ?></h3>
-		<div class="alertMsg danger no-margin">
-			<i class="fa fa-warning"></i> <?php echo $permissionDenied; ?>
-		</div>
-	</div>
-<?php } else { */ 
-/*	?>
-	<div class="content">
-		<h3><?php echo $pageName; ?></h3>
-		<?php if ($msgBox) { echo $msgBox; } ?>
-
-		<ul class="nav nav-tabs">
-			<li><a href="admin.php?page=timesheet_listemployees"><i class="fa fa-group"></i> <?php echo $listEmpNav; ?></a></li>
-			<li class="pull-right"><a href="admin.php?page=timesheet_newemployee" data-toggle="tab" class="bg-success"><i class="fa fa-plus-square"></i> <?php echo $newEmpPage; ?></a></li>
-		</ul>
-
-		<div class="tab-content">
-			<div class="tab-pane in active" id="home">
-				<form action="" method="post">
-					<div class="row">
-						<div class="col-md-6">
-							<div class="form-group">
-								<label for="empFirst"><?php echo $firstNameField; ?> <sup><?php echo $reqField; ?></sup></label>
-								<?php wp_dropdown_users(array('name' => 'setUser')); ?>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="form-group">
-								<label for="empHireDate"><?php echo $hireDateField; ?> <sup><?php echo $reqField; ?></sup></label>
-								<input type="text" class="form-control" required="" name="empHireDate" id="empHireDate" value="<?php echo isset($_POST['empHireDate']) ? $_POST['empHireDate'] : ''; ?>" />
-								<span class="help-block"><?php echo $hireDateFieldHelp; ?></span>
-							</div>
-						</div>
-					</div>					
-					<div class="row">
-						<div class="col-md-6">
-							<div class="form-group">
-								<label for="setAdmin"><?php echo $adminAccField; ?></label>
-								<select class="form-control" name="setAdmin">
-									<option value="0" selected><?php echo $noBtn; ?></option>
-									<option value="1"><?php echo $yesBtn; ?></option>
-								</select>
-								<span class="help-block"><?php echo $adminAccFieldHelp; ?></span>
-							</div>
-						</div>
-						<div class="col-md-6">
-							<div class="form-group">
-								<label for="setManager"><?php echo $accountTypeField; ?></label>
-								<select class="form-control" name="setManager">
-									<option value="0" selected><?php echo $employeeText; ?></option>
-									<option value="1"><?php echo $managerText; ?></option>
-								</select>
-							</div>
-						</div>
-					</div>
-
-					<button type="input" name="submit" value="newEmployee" class="btn btn-success btn-lg btn-icon"><i class="fa fa-check-square-o"></i> <?php echo $addNewEmpBtn; ?></button>
-					
-				</form>
-			</div>
-		</div>
-	</div>
-<?php //}
-
-*/
-
-
+add_action( 'wp_enqueue_scripts', 'my_scripts_method' );
 
 
 /**
@@ -117,6 +28,8 @@
 //function employee_list_table_employees_form_page_handler()
 //{
     global $wpdb;
+    global $current_user;
+    get_currentuserinfo();
     $table_name = $wpdb->base_prefix . 'tsh_employees'; // do not forget about tables prefix
 
     $message = '';
@@ -129,26 +42,34 @@
         'isAdmin' => '',
         'isMgr' => '',
         'empHireDate' => null,
+        'empPosition' => null,
+        'lastUpdateTime' => date("Y-m-d H:i:s"),
+        'lastUpdateUser' => $current_user->ID
     );
 
     // here we are verifying does this request is post back and have correct nonce
     if (wp_verify_nonce($_REQUEST['nonce'], basename(__FILE__))) {
-    	$isPost = 1;
         // combine our default item with request params
         $item = shortcode_atts($default, $_REQUEST);
+
+                
         // validate data, and if all ok save item to database
         // if id is zero insert otherwise update
         $item_valid = employee_list_table_validate_employee($item);
         if ($item_valid === true) {
             if ($item['empId'] == 0) {
-            	$item['user_id'] = $_POST['setUser'];
+            	$item['user_id'] = $_POST['user_id'];
 				$item['empHireDate'] = $_POST['empHireDate'].' 00:00:00';
 				$item['isAdmin'] = $_POST['setAdmin'];
 				$item['isMgr'] = $_POST['setManager'];
+				$item['empPosition'] = $_POST['empPosition'];
+                $item['lastUpdateTime'] = $_POST['lastUpdateTime'];
+                $item['lastUpdateUser'] = $_POST['lastUpdateUser'];
             	$result = $wpdb->insert($table_name, $item);
                // $item['empId'] = $wpdb->insert_id;
                 if ($result) {
                     $message = __('Item was successfully saved', 'employee_list_table');
+                    $item = $default;
                 } else {
                     $notice = __('There was an error while saving item', 'employee_list_table');
                 }
@@ -157,6 +78,7 @@
                 if ($result) {
                     $message = __('Item was successfully updated', 'employee_list_table');
                 } else {
+                    //exit( var_dump( $wpdb->last_query ) );
                     $notice = __('There was an error while updating item', 'employee_list_table');
                 }
             }
@@ -167,7 +89,6 @@
     }
     else {
         // if this is not post back we load item to edit or give new one to create
-        $isPost = 0;
         $item = $default;
         if (isset($_REQUEST['empId'])) {
             $item = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table_name WHERE empId = %d", $_REQUEST['empId']), ARRAY_A);
@@ -185,7 +106,7 @@
 <div class="wrap">
     <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
     <h2><?php _e('Employee', 'employee_list_table')?> <a class="add-new-h2"
-                                href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=timesheet_listemployees');?>"><?php _e('back to list', 'employee_list_table')?></a>
+        href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=timesheet_listemployees');?>"><?php _e('back to list', 'employee_list_table')?></a>
     </h2>
 
     <?php if (!empty($notice)): ?>
@@ -199,6 +120,8 @@
         <input type="hidden" name="nonce" value="<?php echo wp_create_nonce(basename(__FILE__))?>"/>
         <?php /* NOTICE: here we storing id to determine will be item added or updated */ ?>
         <input type="hidden" name="empId" value="<?php echo $item['empId'] ?>"/>
+        <input type="hidden" name="lastUpdateTime" id="lastUpdateTime" value="<?php echo  $item['lastUpdateTime']  ?>" />
+        <input type="hidden" name="lastUpdateUser" id="lastUpdateUser" value="<?php echo $item['lastUpdateUser']  ?>"  />
 
         <div class="metabox-holder" id="poststuff">
             <div id="post-body">
@@ -221,7 +144,7 @@
  * @param $item
  */
 function employee_list_table_employees_form_meta_box_handler($item)
-{global $wpdb;
+{	global $wpdb;
 	$table_name = $wpdb->base_prefix . 'tsh_employees';
 	//$query  = "SELECT GROUP_CONCAT(id) AS emp FROM 'wp_users' WHERE id NOT IN (SELECT user_id FROM $table_name)";
     $query  = "SELECT GROUP_CONCAT(user_id) AS emp FROM $table_name";
@@ -235,40 +158,68 @@ function employee_list_table_employees_form_meta_box_handler($item)
 		$local =  '';
 	}
 
+ $user_info = get_userdata( $item['user_id']);
     ?>
+
+   
 
 
 <table cellspacing="2" cellpadding="5" style="width: 100%;" class="form-table">
     <tbody>
     <tr class="form-field">
         <th valign="top" scope="row">
-            <label for="name"><?php _e('Name', 'employee_list_table')?></label>
+            <label for="name"><?php _e('Name', 'employee_list_table')?><sup>*</sup></label>
         </th>
         <td>
 
+
               <?php
-              if ($isPost == 1){
-              		wp_dropdown_users(array('name' => 'setUser', 'selected' => $item['user_id'])); 
-               } else{
-               		wp_dropdown_users(array('name' => 'setUser', 'exclude' => $local)); 
-               	}?>
+              if ($_REQUEST['empId'] != 0){
+                    ?>
+                  <select class="form-control" name="user_id" id="user_id">
+                                    <option value="<?php echo esc_attr($item['user_id'])?>" <?php echo 'selected="selected"';?>><?php echo $user_info->user_login?></option>
+                                </select>
+                <?php 
+               // wp_dropdown_users(array(
+                 //   'name' => 'user_id',  
+                   // 'include' => isset($_REQUEST['empId']) ? $user_id : null , 
+                    //'exclude' => !isset($_REQUEST['empId']) ? $local : $null ,
+                    //'selected' => $item['user_id'] 
+                    //)); 
+           
+               } else{ 
+                   wp_dropdown_users(array('name' => 'user_id', 'exclude' => $local)); }
+               
+               ?>
         </td>
     </tr>
     <tr class="form-field">
         <th valign="top" scope="row">
-            <label for="empHireDate"><?php _e('Data of Hire', 'employee_list_table')?></label>
+            <label for="empHireDate"><?php _e('Date of Hire', 'employee_list_table')?><sup>*</sup></label>
         </th>
         <td>
            <!-- <input id="email" name="email" type="email" style="width: 95%" value="<?php echo esc_attr($item['isAdmin'])?>"
                    size="50" class="code" placeholder="<?php _e('Your E-Mail', 'employee_list_table')?>" required>-->
-                    <input id="empHireDate" name="empHireDate" type="text" style="width: 95%" value="<?php echo esc_attr($item['empHireDate'])?>"
+                    <input id="empHireDate" name="empHireDate"class="form-control"  type="text" style="width: 95%" value="<?php echo esc_attr($item['empHireDate'])?>"
                    size="50" class="code" placeholder="<?php _e('YYYY-MM-DD', 'employee_list_table')?>" required>
+                
+        </td>
+    </tr>
+     <tr class="form-field">
+        <th valign="top" scope="row">
+            <label for="empPosition"><?php _e('Position', 'employee_list_table')?></label>
+        </th>
+        <td>
+           <!-- <input id="email" name="email" type="email" style="width: 95%" value="<?php echo esc_attr($item['isAdmin'])?>"
+                   size="50" class="code" placeholder="<?php _e('Your E-Mail', 'employee_list_table')?>" required>-->
+                    <input id="empPosition" name="empPosition"class="form-control"  type="text" style="width: 95%" value="<?php echo esc_attr($item['empPosition'])?>"
+                   size="50" class="code" placeholder="<?php _e('Project Manager', 'employee_list_table')?>" >
                 
         </td>
     </tr>
     <tr class="form-field">
         <th valign="top" scope="row">
-            <label for="age"><?php _e('Administrator Account?', 'employee_list_table')?></label>
+            <label for="age"><?php _e('Administrator Account?', 'employee_list_table')?><sup>*</sup></label>
         </th>
         <td>
         <select class="form-control" name="setAdmin">
@@ -281,12 +232,17 @@ function employee_list_table_employees_form_meta_box_handler($item)
     </tr>
     <tr class="form-field">
         <th valign="top" scope="row">
-            <label for="age"><?php _e('Account Type', 'employee_list_table')?></label>
+            <label for="age"><?php _e('Account Type', 'employee_list_table')?><sup>*</sup></label>
         </th>
         <td>
         <select class="form-control" name="setMgr">
-									<option value="0" selected>Employee</option>
-									<option value="1">Manager</option>
+
+      
+			<!--	<option value="0" selected>Employee</option>
+				<option value="1">Manager</option>-->
+				<option value="0" <?php if ( $isPost == 1) selected( $item['isMgr'], '- select -' ); ?>>Employee</option>';
+        		<option value="1" <?php if ( $isPost == 1) selected( $item['isMgr'], '- select -' ); ?>>Manager</option>';
+        		
 								</select>
            <!-- <input id="age" name="age" type="number" style="width: 95%" value="<?php echo esc_attr($item['empHireDate'])?>"
                    size="50" class="code" placeholder="<?php _e('Your age', 'employee_list_table')?>" required> -->
@@ -318,12 +274,6 @@ function employee_list_table_validate_employee($item)
     if (empty($messages)) return true;
     return implode('<br />', $messages);
 }
-
-
-
-
-
-
 
 
 
