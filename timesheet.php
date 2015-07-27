@@ -137,7 +137,7 @@ function timesheet_menu_dashboard(){
 
 <?php
 
-
+include('includes/functions.php');
 include('pages/dashboard.php');
 ?>
 </div>

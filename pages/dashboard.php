@@ -6,7 +6,11 @@ $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 $table_name_timeentry = $wpdb->base_prefix . 'tsh_timeentry';
 global $current_user;
 get_currentuserinfo();
-$user_id = $current_user->ID;	
+$user_id = $current_user->ID;
+$weekNo = getWeekNo(date("Y-m-d"));
+$clockYear = date("Y");
+$startTime = $endTime = date("Y-m-d H:i:s");
+
 
 	$jsFile = 'dashboard';
 
@@ -21,13 +25,14 @@ $user_id = $current_user->ID;
 			$weekNo = sanitize_text_field($_POST['weekNo']);
 			$clockYear = sanitize_text_field($_POST['clockYear']);
 			$running = sanitize_text_field($_POST['running']);
-			$entryDate = $endTime = date("Y-m-d");
-			$startTime = $endTime = date("Y-m-d H:i:s");
+			$entryDate = date("Y-m-d");
+			$startTime = date("Y-m-d H:i:s");
+			$endTime = date("Y-m-d H:i:s");
 
 			if ($running == '0') {
 				// Start Clock - Update the timeclock Record
 				$default_sitesettings_localization = 'en';	
-				$wpdb->update($table_name_timeclock, array( 'running' => 1),"WHERE clockId =".$clockId);
+				$wpdb->update($table_name_timeclock, array( 'running' => 1),array( 'clockId' =>$clockId));
 				
 
 				// Start Clock - Add a new time entry
@@ -39,11 +44,17 @@ $user_id = $current_user->ID;
 							);
 			} else {
 				// Stop Clock - Update the timeclock Record
-				$wpdb->update($table_name_timeclock, array( 'running' => 0),"WHERE clockId =".$clockId);
+				$wpdb->update($table_name_timeclock, array( 'running' => 0),array( 'clockId' =>$clockId));
 
 				// Stop Clock - Update the time entry
-				$wpdb->update($table_name_timeentry, array( 'endTime' => $endTime),"WHERE entryId =".$entryId);
 				
+				$result = $wpdb->update($table_name_timeentry, array( 'endTime' => $endTime),array( 'entryId' =>$entryId));
+                if ($result) {
+                    echo $message = __('Item was successfully updated', 'employee_list_table');
+                } else {
+                    //exit( var_dump( $wpdb->last_query ) );
+                    echo  $notice = __('There was an error while updating item', 'employee_list_table');
+                }
 			}
 		} else {
 			// Record Does Not Exist
@@ -62,9 +73,9 @@ $user_id = $current_user->ID;
 			);
         	
 			// Get the new Tracking ID
-			$track_id = $wpdb->get_results($query("SELECT clockId FROM $table_name_timeclock  WHERE user_id = ".$user_id." AND weekNo = ".$weekNo." AND clockYear = ".$currentYear), ARRAY_A);
-			$id = $track_id;// mysqli_fetch_assoc($track_id);
-			$clockId = $id['clockId'];
+			$track_id = $wpdb->get_row($query="SELECT clockId FROM $table_name_timeclock  WHERE user_id = $user_id AND weekNo = $weekNo AND clockYear = $clockYear", ARRAY_A);
+			//$id = $track_id;// mysqli_fetch_assoc($track_id);
+			$clockId = $track_id['clockId'];
 			$entryDate = $endTime = date("Y-m-d");
 
 			// Start Clock - Add a new time entry
@@ -80,31 +91,28 @@ $user_id = $current_user->ID;
 
 	// Check for an Existing Record
 	$wpdb-> get_results( $query = "SELECT * FROM $table_name_timeclock WHERE user_id = $user_id AND weekNo = $weekNo;");
-	echo 'hhhhhhhhhhhhhhhhhh'.$wpdb->num_rows;
 	if ($wpdb->num_rows) {
-
-		$col =  $wpdb->get_results($query("SELECT clockId,user_id,weekNo,clockYear,running FROM $table_name_timeclock  WHERE user_id = ".$user_id." AND weekNo = ".$weekNo), ARRAY_A);
+		$col =  $wpdb->get_row($query="SELECT clockId,user_id,weekNo,clockYear,running FROM $table_name_timeclock  WHERE user_id = $user_id AND weekNo = $weekNo", ARRAY_A);
 		$clockId = $col['clockId'];
 		$running = $col['running'];
-
-		$rows = $wpdb->get_results($query("SELECT clockId,user_id FROM $table_name_timeentry  WHERE clockId = ".$clockId." AND user_id = ".$user_id." endTime = '0000-00-00'"));
+		$rows = $wpdb->get_row($query="SELECT entryId,clockId,user_id FROM $table_name_timeentry  WHERE clockId = $clockId AND user_id = $user_id AND endTime = '0000-00-00 00:00:00'", ARRAY_A);
 		$entryId = (is_null($rows['entryId'])) ? '' : $rows['entryId'];
 		$isRecord = '1';
 
 		// Get Total Time Worked for the Current Week
 		$u = $wpdb->get_results(
-			$query("SELECT TIMEDIFF($table_name_timeentry.endTime,$table_name_timeentry.startTime) AS diff
+			$query="SELECT TIMEDIFF($table_name_timeentry.endTime,$table_name_timeentry.startTime) AS diff
 			 FROM $table_name_timeclock
 					LEFT JOIN $table_name_timeentry ON $table_name_timeclock.clockId = $table_name_timeentry.clockId
-			WHERE  $table_name_timeclock.user_id = ".$user_id." AND
-					$table_name_timeclock.weekNo = ".$weekNo." AND
-					$table_name_timeclock.clockYear = '".$currentYear."' AND
-					$table_name_timeclock.endTime != '0000-00-00 00:00:00'"));
+			WHERE  $table_name_timeclock.user_id = $user_id AND
+					$table_name_timeclock.weekNo = $weekNo AND
+					$table_name_timeclock.clockYear = $clockYear AND
+					$table_name_timeentry.endTime != '0000-00-00 00:00:00'");
 		$times = array();
-		while ($u) {
-			$times[] = $u['diff'];
-		}
-		$totalTime = sumHours($times);
+		//while ($u as $urow) {
+		//	$times[] = $u['diff'];
+		//}
+		$totalTime = sumHours($u);
 	} else {
 		$clockId = '';
 		$entryId = '';
@@ -231,7 +239,7 @@ $user_id = $current_user->ID;
 						<input type="hidden" name="clockId" value="<?php echo $clockId; ?>" />
 						<input type="hidden" name="entryId" value="<?php echo $entryId; ?>" />
 						<input type="hidden" name="weekNo" value="<?php echo $weekNo; ?>" />
-						<input type="hidden" name="clockYear" value="<?php echo $currentYear; ?>" />
+						<input type="hidden" name="clockYear" value="<?php echo $clockYear; ?>" />
 						<input type="hidden" name="running" id="running" value="<?php echo $running; ?>" />
 						<input type="hidden" name="isRecord" id="isRecord" value="<?php echo $isRecord; ?>" />
 						<button type="input" name="submit" id="timetrack" value="toggleTime" class="btn btn-lg btn-icon" value="toggleTime"><i class=""></i> <span></span></button>

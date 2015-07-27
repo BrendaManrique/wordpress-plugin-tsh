@@ -8,7 +8,7 @@
 	function sumHours($times) {
 		$seconds = 0;
 		foreach ($times as $time) {
-			list($hour,$minute,$second) = explode(':', $time);
+			list($hour,$minute,$second) = explode(':', $time->diff);
 			$seconds += $hour*3600;
 			$seconds += $minute*60;
 			$seconds += $second;
@@ -20,6 +20,9 @@
 		$seconds -= $minutes*60;
 		return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 	}
+
+
+
 
 	/*
      * Functions to get the Week Number from a date
@@ -150,7 +153,7 @@
 	/*
      * Get all of the active Employee emails
      */
-	$empSql = "SELECT empEmail FROM employees WHERE isActive = 1";
+	/*$empSql = "SELECT empEmail FROM employees WHERE isActive = 1";
 	$empResult = mysqli_query($mysqli, $empSql) or die('-98' . mysqli_error());
 
 	// Set each email into a CSV
@@ -158,5 +161,5 @@
 	while ($e = mysqli_fetch_assoc($empResult)) {
 		$empEmailList[] = $e['empEmail'];
 	}
-	$allEmpEmails = implode(',',$empEmailList);
+	$allEmpEmails = implode(',',$empEmailList);*/
 ?>
