@@ -4,6 +4,12 @@ global $wpdb;
 
 $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 $table_name_timeentry = $wpdb->base_prefix . 'tsh_timeentry';
+$table_name_privatemessages = $wpdb->base_prefix . 'tsh_privatemessages';
+$table_name_notices = $wpdb->base_prefix . 'tsh_notices';
+$table_name_employees = $wpdb->base_prefix . 'tsh_employees';
+$table_name_emptasks = $wpdb->base_prefix . 'tsh_emptasks';
+
+
 global $current_user;
 get_currentuserinfo();
 $user_id = $current_user->ID;
@@ -115,75 +121,76 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 		$totalTime = '00:00:00';
 	}
 
+
+
 	// Get Unread Message Count
-	/*$unreadsql = "SELECT 'X' FROM privatemessages WHERE toId = ".$empId." AND toRead = 0";
-	$unreadtotal = mysql_query($mysqli, $unreadsql) or die('-4'.mysql_error());
-	$unread = mysql_num_rows($unreadtotal);
+	$wpdb-> get_results( $query = "SELECT * FROM $table_name_privatemessages WHERE toId = $user_id AND toRead = 0");
+	$unread = $wpdb->num_rows;
 
 	// Get Notice Data
-    $sqlSmt  = "SELECT
-					notices.createdBy,
-					notices.isActive,
-					notices.noticeTitle,
-					notices.noticeText,
-					DATE_FORMAT(notices.noticeDate,'%M %d, %Y') AS noticeDate,
-					UNIX_TIMESTAMP(notices.noticeDate) AS orderDate,
-					notices.noticeStart,
-					notices.noticeExpires,
-					CONCAT(employees.empFirst,' ',employees.empLast) AS postedBy
+    $smtRes  = $wpdb->get_results(
+			$query="SELECT
+					$table_name_notices.createdBy,
+					$table_name_notices.isActive,
+					$table_name_notices.noticeTitle,
+					$table_name_notices.noticeText,
+					DATE_FORMAT($table_name_notices.noticeDate,'%M %d, %Y') AS noticeDate,
+					UNIX_TIMESTAMP($table_name_notices.noticeDate) AS orderDate,
+					$table_name_notices.noticeStart,
+					$table_name_notices.noticeExpires,
+					$table_name_employees.user_id AS postedBy
 				FROM
-					notices
-					LEFT JOIN employees ON notices.createdBy = employees.empId
+					$table_name_notices
+					LEFT JOIN $table_name_employees ON $table_name_notices.createdBy = $table_name_employees.user_id
 				WHERE
-					notices.noticeStart <= DATE_SUB(CURDATE(),INTERVAL 0 DAY) AND
-					notices.noticeExpires >= DATE_SUB(CURDATE(),INTERVAL 0 DAY) OR
-					notices.isActive = 1
+					$table_name_notices.noticeStart <= DATE_SUB(CURDATE(),INTERVAL 0 DAY) AND
+					$table_name_notices.noticeExpires >= DATE_SUB(CURDATE(),INTERVAL 0 DAY) OR
+					$table_name_notices.isActive = 1
 				ORDER BY
-					orderDate";
-    $smtRes = mysqli_query($mysqli, $sqlSmt) or die('-5' . mysqli_error());
+					orderDate");
 
-	$qry = "SELECT
-				emptasks.empTaskId,
-				emptasks.createdBy,
-				emptasks.taskTitle,
-				emptasks.taskDesc,
-				emptasks.taskPriority,
-				DATE_FORMAT(emptasks.taskStart,'%b %d %Y') AS taskStart,
-				DATE_FORMAT(emptasks.taskDue,'%b %d %Y') AS taskDue,
-				UNIX_TIMESTAMP(emptasks.taskDue) AS orderDate,
-				CONCAT(employees.empFirst,' ',employees.empLast) AS postedBy
+    $res  = $wpdb->get_results(
+			$query="SELECT
+				$table_name_emptasks.empTaskId,
+				$table_name_emptasks.createdBy,
+				$table_name_emptasks.taskTitle,
+				$table_name_emptasks.taskDesc,
+				$table_name_emptasks.taskPriority,
+				DATE_FORMAT($table_name_emptasks.taskStart,'%b %d %Y') AS taskStart,
+				DATE_FORMAT($table_name_emptasks.taskDue,'%b %d %Y') AS taskDue,
+				UNIX_TIMESTAMP($table_name_emptasks.taskDue) AS orderDate,
+				$table_name_employees.user_id AS postedBy
 			FROM
-				emptasks
-				LEFT JOIN employees ON emptasks.createdBy = employees.empId
+				$table_name_emptasks
+				LEFT JOIN $table_name_employees ON $table_name_emptasks.createdBy = $table_name_employees.empId
 			WHERE
-				emptasks.assignedTo = ".$empId." AND
-				emptasks.isClosed = 0
+				$table_name_emptasks.assignedTo = $user_id AND	$table_name_emptasks.isClosed = 0
 			ORDER BY
 				orderDate
-			LIMIT 3";
-	$res = mysqli_query($mysqli, $qry) or die('-6'.mysqli_error());
-
-	$stmt = "SELECT
-				privatemessages.messageId,
-				privatemessages.fromId,
-				privatemessages.messageTitle,
-				privatemessages.messageText,
-				DATE_FORMAT(privatemessages.messageDate,'%b %d %Y') AS messageDate,
-				UNIX_TIMESTAMP(privatemessages.messageDate) AS orderDate,
-				CONCAT(employees.empFirst,' ',employees.empLast) AS sentBy
+			LIMIT 3",ARRAY_A);
+    $res_numrows = $wpdb->num_rows;
+	
+	$result  = $wpdb->get_results(
+			$query="SELECT
+				$table_name_privatemessages.messageId,
+				$table_name_privatemessages.fromId,
+				$table_name_privatemessages.messageTitle,
+				$table_name_privatemessages.messageText,
+				DATE_FORMAT($table_name_privatemessages.messageDate,'%b %d %Y') AS messageDate,
+				UNIX_TIMESTAMP($table_name_privatemessages.messageDate) AS orderDate,
+				$table_name_employees.user_id AS sentBy
 			FROM
-				privatemessages
-				LEFT JOIN employees ON privatemessages.fromId = employees.empId
+				$table_name_privatemessages
+				LEFT JOIN $table_name_employees ON $table_name_privatemessages.fromId = $table_name_employees.user_id
 			WHERE
-				privatemessages.toId = ".$empId." AND
-				privatemessages.toArchived = 0 AND
-				privatemessages.toDeleted = 0
+				$table_name_privatemessages.toId = $user_id AND
+				$table_name_privatemessages.toArchived = 0 AND
+				$table_name_privatemessages.toDeleted = 0
 			ORDER BY
 				orderDate DESC
-			LIMIT 3";
-	$result = mysqli_query($mysqli, $stmt) or die('-7'.mysqli_error());
-
-	*/
+			LIMIT 3",ARRAY_A);
+	$result_numrows = $wpdb->num_rows;
+	
 ?>
 <div class="contentAlt">
 <h2>TimeSheet Dashboard</h2></br>
@@ -251,8 +258,8 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 			<div class="content setHeight no-margin">
 			<h4><?php echo $recentTasksTitle; ?></h4>
 				<?php
-					if(mysqli_num_rows($res) > 0) {
-						while ($task = mysqli_fetch_assoc($res)) {
+					if($res_numrows > 0) {
+						while ($task = $res) {
 				?>
 							<div class="task-item">
 								<h4>
@@ -282,8 +289,8 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 			<div class="content setHeight no-margin">
 			<h4><?php echo $recentMsgsTitle; ?></h4>
 			<?php
-					if(mysqli_num_rows($result) > 0) {
-						while ($msg = mysqli_fetch_assoc($result)) {
+					if($result_numrows > 0) {
+						while ($msg = $result) {
 				?>
 							<div class="task-item">
 								<h4>
