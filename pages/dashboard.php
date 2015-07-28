@@ -49,14 +49,9 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 				// Stop Clock - Update the time entry
 				
 				$result = $wpdb->update($table_name_timeentry, array( 'endTime' => $endTime),array( 'entryId' =>$entryId));
-                if ($result) {
-                    echo $message = __('Item was successfully updated', 'employee_list_table');
-                } else {
-                    //exit( var_dump( $wpdb->last_query ) );
-                    echo  $notice = __('There was an error while updating item', 'employee_list_table');
-                }
+                
 			}
-		} else {
+		} else {   
 			// Record Does Not Exist
 			// Start Clock - Create a timeclock Record
 			$weekNo = sanitize_text_field($_POST['weekNo']);
