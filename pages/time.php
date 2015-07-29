@@ -12,7 +12,7 @@ $user_id = $current_user->ID;
  $currentYear= date("Y");
  $weekNo = getWeekNo(date("Y-m-d"));
 
-echo $currentYear;
+
 /*
 	// Delete Time Entry
 	if (isset($_POST['submit']) && $_POST['submit'] == 'deleteTime') {
@@ -182,7 +182,7 @@ echo $currentYear;
 				// Set the Current Year Tab Button as Active
 				if ($years['clockYear'] == $currentYear) { $setActive = 'class="active"'; } else { $setActive = ''; }
 		?>
-				<li <?php echo $setActive; ?>><a href="#<?php echo $years; ?>" data-toggle="tab"><?php echo $years; ?></a></li>
+				<li <?php echo $setActive; ?>><a href="#<?php echo $years['clockYear']; ?>" data-toggle="tab"><?php echo $years['clockYear']; ?></a></li>
 		<?php
 			}
 			if ($set['enableTimeEdits'] == '1') {
@@ -268,7 +268,7 @@ echo $currentYear;
 												$table_name_timeclock.user_id = $user_id AND
 												$table_name_timeclock.weekNo = $weekTabNo AND
 												clockYear = $yearclockYear AND
-												$table_name_timeentry.endTime != '0000-00-00 00:00:00'",ARRAY_A);
+												$table_name_timeentry.endTime != '0000-00-00 00:00:00'");
 
 									/*$times = array();
 									while ($u = $result) {
@@ -292,15 +292,17 @@ echo $currentYear;
 										<?php
 											foreach ( $res as $col) {
 												// Get the Time Total for each Time Entry
-									
+												
 												$col_user=$col['user_id'];
-												$rows = $wpdb->get_results( 
-													$query="SELECT $table_name_timeentry.startTime, $table_name_timeentry.endTime FROM $table_name_timeentry WHERE user_id = $col_user ",ARRAY_A);
-										
+												//$rows = $wpdb->get_results( 
+													//$query="SELECT $table_name_timeentry.startTime, $table_name_timeentry.endTime FROM $table_name_timeentry WHERE user_id = $col_user ",ARRAY_A);
+										//print_r($rows);
 												// Convert it to HH:MM
-												$from = new DateTime($rows['startTime']);
-												$to = new DateTime($rows['endTime']);
+												$from = new DateTime($col['startTime']);
+												$to = new DateTime($col['endTime']);
 												$lineTotal = $from->diff($to)->format('%h:%i');
+
+										
 										?>
 												<tr>
 													<td data-th="<?php echo $yearField; ?>"><?php echo $col['clockYear']; ?></td>

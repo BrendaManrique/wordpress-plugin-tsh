@@ -53,7 +53,7 @@ jQuery(document).ready(function() {
 	 ****************************** **/
 	var maxheight = 0;
 	jQuery(".setHeight").each(function(){
-	  if($(this).height() > maxheight) { maxheight = $(this).height(); }
+	  if(jQuery(this).height() > maxheight) { maxheight = jQuery(this).height(); }
 	});
 
 	jQuery(".setHeight").height(maxheight);
@@ -131,11 +131,11 @@ jQuery(document).ready(function() {
 	/** ******************************
 	* Activate Tool-tips
 	****************************** **/
-    jQuery("[data-toggle='tooltip']").tooltip();
+   // jQuery("[data-toggle='tooltip']").tooltip();
 
 	/** ******************************
 	* Activate Popovers
 	****************************** **/
-	jQuery("[data-toggle='popover']").popover();
+	//jQuery("[data-toggle='popover']").popover();
 
 });

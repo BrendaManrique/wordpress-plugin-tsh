@@ -109,7 +109,7 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 					$table_name_timeclock.weekNo = $weekNo AND
 					$table_name_timeclock.clockYear = $clockYear AND
 					$table_name_timeentry.endTime != '0000-00-00 00:00:00'");
-		$times = array();
+		//$times = array();
 		//while ($u as $urow) {
 		//	$times[] = $u['diff'];
 		//}
