@@ -2,7 +2,7 @@
 /**
 * Plugin Name: WP-TimeSheet
 * Plugin URI: http://brendamanrique.com/
-* Description: Timesheet plugin for Trung <3
+* Description: Timesheet plugin for Borough Construction
 * Version: 1.0
 * Author: Brenda Manrique
 * Author URI: http://brendamanrique.com/

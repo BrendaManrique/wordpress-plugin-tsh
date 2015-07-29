@@ -9,8 +9,8 @@
 	global $current_user;
 get_currentuserinfo();
 $user_id = $current_user->ID;
- $currentYear= date("Y");
- $weekNo = getWeekNo(date("Y-m-d"));
+ $currentYear= current_time("Y");
+ $weekNo = getWeekNo(current_time("Y-m-d"));
 
 
 /*
@@ -37,9 +37,9 @@ $user_id = $current_user->ID;
 			$timeIn = $mysqli->real_escape_string($_POST['timeIn']);
 			$dateOut = $mysqli->real_escape_string($_POST['dateOut']);
 			$timeOut = $mysqli->real_escape_string($_POST['timeOut']);
-			$clockYear	= date("Y", strtotime($dateIn));
-			$weekNo	= date("W", strtotime($dateIn));
-			$entryDate = date("Y-m-d");
+			$clockYear	= current_time("Y", strtotime($dateIn));
+			$weekNo	= current_time("W", strtotime($dateIn));
+			$entryDate = current_time("Y-m-d");
 
 			// Check if a Time Clock Record all ready exists
 			$check = $mysqli->query("SELECT clockId FROM timeclock WHERE empId = ".$empId." AND weekNo = '".$weekNo."' AND clockYear = '".$clockYear."'");

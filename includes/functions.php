@@ -38,9 +38,9 @@
 	}
 
 	function getWeekNo($date) {
-		$week = date('W',strtotime($date));
-		$day = date('N',strtotime($date));
-		$max_weeks = getIsoWeeksInYear(date('Y',strtotime($date)));
+		$week = current_time('W',strtotime($date));
+		$day = current_time('N',strtotime($date));
+		$max_weeks = getIsoWeeksInYear(current_time('Y',strtotime($date)));
 
 		if($day == 7 && $week != $max_weeks) {
 			return ++$week;

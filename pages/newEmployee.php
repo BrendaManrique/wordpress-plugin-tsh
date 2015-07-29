@@ -43,7 +43,7 @@ add_action( 'wp_enqueue_scripts', 'my_scripts_method' );
         'isMgr' => '',
         'empHireDate' => null,
         'empPosition' => null,
-        'lastUpdateTime' => date("Y-m-d H:i:s"),
+        'lastUpdateTime' => current_time("Y-m-d H:i:s"),
         'lastUpdateUser' => $current_user->ID
     );
 
@@ -79,7 +79,7 @@ add_action( 'wp_enqueue_scripts', 'my_scripts_method' );
                     $message = __('Item was successfully updated', 'employee_list_table');
                 } else {
                     //exit( var_dump( $wpdb->last_query ) );
-                    $notice = __('There was an error while updating item', 'employee_list_table');
+                    $notice = __('Information already exists', 'employee_list_table');
                 }
             }
         } else {
@@ -188,7 +188,13 @@ function employee_list_table_employees_form_meta_box_handler($item)
                     //)); 
            
                } else{ 
-                   wp_dropdown_users(array('name' => 'user_id', 'exclude' => $local)); }
+                   if (wp_dropdown_users(array('name' => 'user_id', 'exclude' => $local))){
+                     //   wp_dropdown_users(array('name' => 'user_id', 'exclude' => $local));
+                    }else{
+                        echo 'All users assigned';
+                    }
+
+                }
                
                ?>
         </td>
@@ -217,7 +223,7 @@ function employee_list_table_employees_form_meta_box_handler($item)
                 
         </td>
     </tr>
-    <tr class="form-field">
+    <!--<tr class="form-field">
         <th valign="top" scope="row">
             <label for="age"><?php _e('Administrator Account?', 'employee_list_table')?><sup>*</sup></label>
         </th>
@@ -228,7 +234,7 @@ function employee_list_table_employees_form_meta_box_handler($item)
 								</select>
            <!-- <input id="age" name="age" type="number" style="width: 95%" value="<?php echo esc_attr($item['empHireDate'])?>"
                    size="50" class="code" placeholder="<?php _e('Your age', 'employee_list_table')?>" required> -->
-        </td>
+    <!--    </td>
     </tr>
     <tr class="form-field">
         <th valign="top" scope="row">
@@ -240,14 +246,14 @@ function employee_list_table_employees_form_meta_box_handler($item)
       
 			<!--	<option value="0" selected>Employee</option>
 				<option value="1">Manager</option>-->
-				<option value="0" <?php if ( $isPost == 1) selected( $item['isMgr'], '- select -' ); ?>>Employee</option>';
+	<!--			<option value="0" <?php if ( $isPost == 1) selected( $item['isMgr'], '- select -' ); ?>>Employee</option>';
         		<option value="1" <?php if ( $isPost == 1) selected( $item['isMgr'], '- select -' ); ?>>Manager</option>';
         		
 								</select>
            <!-- <input id="age" name="age" type="number" style="width: 95%" value="<?php echo esc_attr($item['empHireDate'])?>"
                    size="50" class="code" placeholder="<?php _e('Your age', 'employee_list_table')?>" required> -->
-        </td>
-    </tr>
+       <!-- </td>
+    </tr>-->
     </tbody>
 </table>
 <?php

@@ -13,10 +13,9 @@ $table_name_emptasks = $wpdb->base_prefix . 'tsh_emptasks';
 global $current_user;
 get_currentuserinfo();
 $user_id = $current_user->ID;
-$weekNo = getWeekNo(date("Y-m-d"));
-$clockYear = date("Y");
-$startTime = $endTime = date("Y-m-d H:i:s");
-
+$weekNo = getWeekNo(current_time("Y-m-d"));
+$clockYear = current_time("Y");
+$startTime = $endTime = current_time("Y-m-d H:i:s");
 
 	$jsFile = 'dashboard';
 
@@ -31,9 +30,9 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 			$weekNo = sanitize_text_field($_POST['weekNo']);
 			$clockYear = sanitize_text_field($_POST['clockYear']);
 			$running = sanitize_text_field($_POST['running']);
-			$entryDate = date("Y-m-d");
-			$startTime = date("Y-m-d H:i:s");
-			$endTime = date("Y-m-d H:i:s");
+			$entryDate = current_time("Y-m-d");
+			$startTime = current_time("Y-m-d H:i:s");
+			$endTime = current_time("Y-m-d H:i:s");
 
 			if ($running == '0') {
 				// Start Clock - Update the timeclock Record
@@ -63,7 +62,7 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 			$weekNo = sanitize_text_field($_POST['weekNo']);
 			$clockYear = sanitize_text_field($_POST['clockYear']);
 			$running = '1';
-			$startTime = date("Y-m-d H:i:s");
+			$startTime = current_time("Y-m-d H:i:s");
 
 			$wpdb->insert( $table_name_timeclock, array( 
 					'user_id' => $user_id,
@@ -77,7 +76,7 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 			$track_id = $wpdb->get_row($query="SELECT clockId FROM $table_name_timeclock  WHERE user_id = $user_id AND weekNo = $weekNo AND clockYear = $clockYear", ARRAY_A);
 			//$id = $track_id;// mysqli_fetch_assoc($track_id);
 			$clockId = $track_id['clockId'];
-			$entryDate = $endTime = date("Y-m-d");
+			$entryDate = $endTime = current_time("Y-m-d");
 
 			// Start Clock - Add a new time entry
 			$wpdb->insert( $table_name_timeentry, array( 

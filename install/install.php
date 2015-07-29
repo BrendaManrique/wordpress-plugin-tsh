@@ -2,7 +2,7 @@
 //WordPress 3.5 or more: $wpdb->get_charset_collate() support characters
 
 global $jal_db_version;
-$jal_db_version = '1.76';
+$jal_db_version = '1.77';
 
 //Check Upgrade
 function myplugin_update_db_check() {
@@ -111,7 +111,10 @@ function jal_install() {
 		leaveHours decimal(3,1) NOT NULL DEFAULT '0.0',
 		dateEntered timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
 		PRIMARY KEY  (earnedId),
-		KEY user_id (user_id)
+		KEY user_id (user_id)Logs
+
+    2015
+
 	) $charset_collate;";
 	dbDelta( $sql );
 
@@ -224,7 +227,7 @@ function jal_install() {
 	dbDelta( $sql );
 
 
-	add_option( 'jal_db_version', $jal_db_version );
+	add_site_option( 'jal_db_version', $jal_db_version );
 
 
 
@@ -232,7 +235,7 @@ function jal_install() {
 	//For Upgrade
 
 	global $wpdb;
-	$installed_ver = get_option( "jal_db_version" );
+	$installed_ver = get_site_option( "jal_db_version" );
 
 	if ( $installed_ver != $jal_db_version ) {
 
@@ -245,7 +248,7 @@ function jal_install() {
 		require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 		dbDelta( $sql );
 
-		update_option( "jal_db_version", $jal_db_version );
+		update_site_option( "jal_db_version", $jal_db_version );
 	}
 	
 }
