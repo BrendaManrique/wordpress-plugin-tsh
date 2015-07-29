@@ -101,28 +101,46 @@ function register_timesheet_menu(){
 
     $dashboard_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_dashboard', 'TSH Dashboard', 'manage_options', 'timesheet_dashboard' );
 
-    add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'manage_options', 'timesheet_mytime',  'timesheet_menu_mytime');
+    $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'manage_options', 'timesheet_mytime',  'timesheet_menu_mytime');
 
     add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'timesheet_newemployee',  'timesheet_menu_newEmployee');  
  	add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'timesheet_listemployees',  'timesheet_menu_listEmployees');  
 
 // Load the JS conditionally
         add_action( 'load-' . $dashboard_style, 'load_admin_js' );
+        add_action( 'load-' . $mytime_style, 'load_mytime_js' );
 }
 function load_admin_js(){
         // Unfortunately we can't just enqueue our scripts here - it's too early. So register against the proper action hook to do it
         add_action( 'admin_enqueue_scripts', 'enqueue_admin_js' );
     }
-     function enqueue_admin_js(){
-        // Isn't it nice to use dependencies and the already registered core js files?
-        wp_enqueue_script( 'custom-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/custom.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
-   		wp_enqueue_style('custom',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/custom.css');
- 		wp_enqueue_style('bootstrap',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/bootstrap.css');
- 		wp_enqueue_script( 'dashboard-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/includes/dashboard.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
-   		wp_enqueue_style('font-awesome',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/font-awesome.css');
- 		wp_enqueue_style('timezone',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/timezone.css');
- 		
+function enqueue_admin_js(){
+// Isn't it nice to use dependencies and the already registered core js files?
+	wp_enqueue_script( 'custom-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/custom.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
+	wp_enqueue_style('custom',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/custom.css');
+	wp_enqueue_style('bootstrap',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/bootstrap.css');
+	wp_enqueue_script( 'dashboard-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/includes/dashboard.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
+	wp_enqueue_style('font-awesome',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/font-awesome.css');
+	wp_enqueue_style('timezone',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/timezone.css');
+	
+}
+function load_mytime_js(){
+        // Unfortunately we can't just enqueue our scripts here - it's too early. So register against the proper action hook to do it
+        add_action( 'admin_enqueue_scripts', 'enqueue_mytime_js' );
     }
+function enqueue_mytime_js(){
+// Isn't it nice to use dependencies and the already registered core js files?
+	wp_enqueue_script( 'viewTime-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/includes/viewTime.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );	
+	wp_enqueue_script( 'timeCards-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/includes/timeCards.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
+	
+	wp_enqueue_script( 'custom-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/custom.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
+	wp_enqueue_style('custom',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/custom.css');
+	wp_enqueue_style('bootstrap',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/bootstrap.css');
+	//wp_enqueue_script( 'dashboard-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/includes/dashboard.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
+	wp_enqueue_style('font-awesome',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/font-awesome.css');
+	wp_enqueue_style('timezone',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/timezone.css');
+	
+}
 
 function timesheet_menu_dashboard(){
 	include ('language/en.php');	
@@ -148,9 +166,10 @@ function timesheet_menu_mytime(){
 	include ('language/en.php');	
 ?>
 <div class="wrap">
-<h4> A hello world111</h4>
+<h4>My Time</h4>
 <?php
-include('pages/viewTime.php');
+include('includes/functions.php');
+include('pages/time.php');
 ?>
 </div>
 <?php

@@ -131,11 +131,11 @@ jQuery(document).ready(function() {
 	/** ******************************
 	* Activate Tool-tips
 	****************************** **/
-    jQuery("[data-toggle='tooltip']").tooltip();
+    $("[data-toggle='tooltip']").tooltip();
 
 	/** ******************************
 	* Activate Popovers
 	****************************** **/
-	jQuery("[data-toggle='popover']").popover();
+	$("[data-toggle='popover']").popover();
 
 });

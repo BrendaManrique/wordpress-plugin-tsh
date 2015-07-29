@@ -1,9 +1,9 @@
-$(function() {
+jQuery(function() {
 
 	/** ******************************
 	 * Date & Time Fields
 	 ****************************** **/
-	$('#dateIn').datetimepicker({
+	jQuery('#dateIn').datetimepicker({
 		format: 'yyyy-mm-dd',
 		todayBtn:  1,
 		autoclose: 1,
@@ -11,7 +11,7 @@ $(function() {
 		minView: 2,
 		forceParse: 0
 	});
-	$('#timeIn').datetimepicker({
+	jQuery('#timeIn').datetimepicker({
 		format: 'hh:ii',
 		startDate: '2014-01-01',
 		weekStart: 1,
@@ -23,7 +23,7 @@ $(function() {
 		minuteStep: 15
 	});
 	
-	$('#dateOut').datetimepicker({
+	jQuery('#dateOut').datetimepicker({
 		format: 'yyyy-mm-dd',
 		todayBtn:  1,
 		autoclose: 1,
@@ -31,7 +31,7 @@ $(function() {
 		minView: 2,
 		forceParse: 0
 	});
-	$('#timeOut').datetimepicker({
+	jQuery('#timeOut').datetimepicker({
 		format: 'hh:ii',
 		startDate: '2014-01-01',
 		weekStart: 1,

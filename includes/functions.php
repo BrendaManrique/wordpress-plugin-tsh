@@ -7,7 +7,10 @@
      */
 	function sumHours($times) {
 		$seconds = 0;
+		//print_r(  $times );echo '</br>';
+		//print_r(  $times[0] );
 		foreach ($times as $time) {
+			//print_r('....'.$time->diff.'.....');
 			list($hour,$minute,$second) = explode(':', $time->diff);
 			$seconds += $hour*3600;
 			$seconds += $minute*60;

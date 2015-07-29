@@ -147,7 +147,8 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 					$table_name_notices.noticeExpires >= DATE_SUB(CURDATE(),INTERVAL 0 DAY) OR
 					$table_name_notices.isActive = 1
 				ORDER BY
-					orderDate");
+					orderDate",ARRAY_A);
+    $smtRes_numrows = $wpdb->num_rows;
 
     $res  = $wpdb->get_results(
 			$query="SELECT
@@ -317,9 +318,9 @@ $startTime = $endTime = date("Y-m-d H:i:s");
 	</div>
 </div>
 
-<?php if(mysqli_num_rows($smtRes) > 0) { ?>
+<?php if($smtRes_numrows > 0) { ?>
 	<div class="contentAlt">
-		<?php while ($note = mysqli_fetch_assoc($smtRes)) { ?>
+		<?php while ($note = $smtRes) { ?>
 			<div class="panel panel-info">
 				<div class="panel-heading">
 					<h3 class="panel-title">
