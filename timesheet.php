@@ -97,11 +97,11 @@ if(!empty($records[0])){
 add_action('admin_menu', 'register_timesheet_menu');
 function register_timesheet_menu(){
 
-    add_menu_page('page_timesheet', 'Time Sheet', 'manage_options', 'timesheet_dashboard','timesheet_menu_dashboard', plugins_url( 'wp-timesheet/images/bullet.png' ), 6 ); 
+    add_menu_page('page_timesheet', 'Time Sheet', 'upload_files', 'timesheet_dashboard','timesheet_menu_dashboard', plugins_url( 'wp-timesheet/images/bullet.png' ), 6 ); 
 
-    $dashboard_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_dashboard', 'TSH Dashboard', 'manage_options', 'timesheet_dashboard' );
+    $dashboard_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_dashboard', 'TSH Dashboard', 'upload_files', 'timesheet_dashboard' );
 
-    $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'manage_options', 'timesheet_mytime',  'timesheet_menu_mytime');
+    $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'upload_files', 'timesheet_mytime',  'timesheet_menu_mytime');
 
     add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'timesheet_newemployee',  'timesheet_menu_newEmployee');  
  	add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'timesheet_listemployees',  'timesheet_menu_listEmployees');  
