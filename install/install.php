@@ -9,7 +9,7 @@ function myplugin_update_db_check() {
     global $jal_db_version;
     if ( get_site_option( 'jal_db_version' ) != $jal_db_version ) {
         jal_install();
-        jal_install_data();
+        //jal_install_data();
 
         
     }

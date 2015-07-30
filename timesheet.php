@@ -101,7 +101,7 @@ function register_timesheet_menu(){
 
     $dashboard_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_dashboard', 'TSH Dashboard', 'upload_files', 'timesheet_dashboard' );
 
-    $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'upload_files', 'timesheet_mytime',  'timesheet_menu_mytime');
+    $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time Card', 'upload_files', 'timesheet_mytime',  'timesheet_menu_mytime');
 
     add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'timesheet_newemployee',  'timesheet_menu_newEmployee');  
  	add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'timesheet_listemployees',  'timesheet_menu_listEmployees');  
