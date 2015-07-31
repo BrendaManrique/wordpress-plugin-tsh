@@ -87,7 +87,7 @@ class Employees_List_Table extends WP_List_Table
     function column_name($item)
     {	$user_info = get_userdata( $item['user_id']);
         // links going to /admin.php?page=[your_plugin_page][&other_params]
-        // notice how we used $_REQUEST['page'], so action will be done on curren page
+        // notice how we used $_REQUEST['page'], so action will be done on current page
         // also notice how we use $this->_args['singular'] so in this example it will
         // be something like &employee=2
         $actions = array(
@@ -248,7 +248,7 @@ class Employees_List_Table extends WP_List_Table
         $total_items = $wpdb->get_var("SELECT COUNT(empId) FROM $table_name");
 
         // prepare query params, as usual current page, order by and order direction
-        $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged']) - 1) : 0;
+        $paged = isset($_REQUEST['paged']) ? max(0, intval($_REQUEST['paged'] - 1) * $per_page) : 0;
         $orderby = (isset($_REQUEST['orderby']) && in_array($_REQUEST['orderby'], array_keys($this->get_sortable_columns()))) ? $_REQUEST['orderby'] : 'user_id';
         $order = (isset($_REQUEST['order']) && in_array($_REQUEST['order'], array('asc', 'desc'))) ? $_REQUEST['order'] : 'asc';
 

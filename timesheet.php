@@ -101,7 +101,8 @@ function register_timesheet_menu(){
 
     $dashboard_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_dashboard', 'TSH Dashboard', 'upload_files', 'timesheet_dashboard' );
 
-    $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time Card', 'upload_files', 'timesheet_mytime',  'timesheet_menu_mytime');
+    $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'upload_files', 'timesheet_mytime',  'timesheet_menu_mytime');
+    $tasks_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_tasks', 'Tasks', 'upload_files', 'timesheet_tasks',  'timesheet_menu_tasks');
 
     add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'timesheet_newemployee',  'timesheet_menu_newEmployee');  
  	add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'timesheet_listemployees',  'timesheet_menu_listEmployees');  
@@ -109,7 +110,9 @@ function register_timesheet_menu(){
 // Load the JS conditionally
         add_action( 'load-' . $dashboard_style, 'load_admin_js' );
         add_action( 'load-' . $mytime_style, 'load_mytime_js' );
+        add_action( 'load-' . $tasks_style, 'load_mytime_js' );
 }
+
 function load_admin_js(){
         // Unfortunately we can't just enqueue our scripts here - it's too early. So register against the proper action hook to do it
         add_action( 'admin_enqueue_scripts', 'enqueue_admin_js' );
@@ -170,6 +173,19 @@ function timesheet_menu_mytime(){
 <?php
 include('includes/functions.php');
 include('pages/time.php');
+?>
+</div>
+<?php
+}
+
+function timesheet_menu_tasks(){
+	include ('language/en.php');	
+?>
+<div class="wrap">
+<h4>Tasks</h4>
+<?php
+//include('includes/functions.php');
+include('pages/tasks.php');
 ?>
 </div>
 <?php

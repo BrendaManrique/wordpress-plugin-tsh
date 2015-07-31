@@ -2,7 +2,7 @@
 //WordPress 3.5 or more: $wpdb->get_charset_collate() support characters
 
 global $jal_db_version;
-$jal_db_version = '1.77';
+$jal_db_version = '1.781';
 
 //Check Upgrade
 function myplugin_update_db_check() {
@@ -20,7 +20,7 @@ add_action( 'plugins_loaded', 'myplugin_update_db_check' );
 function jal_install() {
 	global $wpdb;
 	global $jal_db_version;
-
+	
 	$table_name = $wpdb->base_prefix . 'tsh_calendarevents';	
 	$charset_collate = $wpdb->get_charset_collate();
 	$sql = "CREATE TABLE IF NOT EXISTS $table_name (
@@ -96,7 +96,7 @@ function jal_install() {
 		taskDue timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
 		isClosed int(1) NOT NULL DEFAULT '0',
 		dateClosed timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-		PRIMARY KEY  (empTaskId)
+		PRIMARY KEY  (empTaskId),
 		KEY assignedTo (assignedTo)
 	) $charset_collate;";
 	dbDelta( $sql );
@@ -111,10 +111,7 @@ function jal_install() {
 		leaveHours decimal(3,1) NOT NULL DEFAULT '0.0',
 		dateEntered timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
 		PRIMARY KEY  (earnedId),
-		KEY user_id (user_id)Logs
-
-    2015
-
+		KEY user_id (user_id)
 	) $charset_collate;";
 	dbDelta( $sql );
 
@@ -272,8 +269,8 @@ function jal_install_data() {
 	$default_employees_user_id = $current_user->ID;	
 	$default_employees_isAdmin = $default_employees_isActive = '1';
 	$default_employees_empPosition = 'Site Administrator';
-	$default_employees_empHireDate = date("Y-m-d H:i:s");
-	$default_employees_lastUpdateTime = date("Y-m-d H:i:s");
+	$default_employees_empHireDate = current_time("Y-m-d H:i:s");
+	$default_employees_lastUpdateTime = current_time("Y-m-d H:i:s");
 	$default_employees_lastUpdateUser = $current_user->ID;	
 	$wpdb->insert( 
 		$table_name, 
