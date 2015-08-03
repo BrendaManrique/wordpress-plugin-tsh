@@ -86,7 +86,7 @@
 					<i class="fa fa-minus-square-o"></i> <?php echo $noOpenTasksFound; ?>
 				</div>
 			<?php } else { ?>
-				<table class="rwd-table">
+				<table class="rwd-table"> 
 					<tbody>
 						<tr class="primary">
 							<th><?php echo $taskTitleField; ?></th>
