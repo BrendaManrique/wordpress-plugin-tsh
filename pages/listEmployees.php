@@ -242,7 +242,7 @@ class Employees_List_Table extends WP_List_Table
         $this->_column_headers = array($columns, $hidden, $sortable);
 
         // [OPTIONAL] process bulk action if any
-        $this->process_bulk_action(); 
+        $this->process_bulk_action();
 
         // will be used in pagination settings
         $total_items = $wpdb->get_var("SELECT COUNT(empId) FROM $table_name");
