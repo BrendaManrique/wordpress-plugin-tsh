@@ -91,7 +91,7 @@ class Employees_List_Table extends WP_List_Table
         // also notice how we use $this->_args['singular'] so in this example it will
         // be something like &employee=2
         $actions = array(
-            'edit' => sprintf('<a href="?page=timesheet_newemployee&empId=%s">%s</a>', $item['empId'], __('Edit', 'employee_list_table')),
+            'edit' => sprintf('<a href="?page=newemployee&empId=%s">%s</a>', $item['empId'], __('Edit', 'employee_list_table')),
             'delete' => sprintf('<a href="?page=%s&action=delete&empId=%s">%s</a>', $_REQUEST['page'], $item['empId'], __('Delete', 'employee_list_table')),
         );
 

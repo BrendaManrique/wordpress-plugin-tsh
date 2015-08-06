@@ -2,7 +2,7 @@
 //WordPress 3.5 or more: $wpdb->get_charset_collate() support characters
 
 global $jal_db_version;
-$jal_db_version = '1.781';
+$jal_db_version = '1.782';
 
 //Check Upgrade
 function myplugin_update_db_check() {

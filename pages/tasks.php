@@ -1,26 +1,25 @@
 <?php
 	$pagPages = '10';
+	$table_name_emptasks = $wpdb->base_prefix . 'tsh_emptasks';
+	$table_name_employees = $wpdb->base_prefix . 'tsh_employees';
+	//global $current_user;
+	//get_currentuserinfo();
+	//$user_id = $current_user->ID;
 
 	// Complete Task
 	if (isset($_POST['submit']) && $_POST['submit'] == 'completeTask') {
-		$completeId = $mysqli->real_escape_string($_POST['completeId']);
+		$completeId = $mysql->real_escape_string($_POST['completeId']);
 		$taskStatus = 'Closed';
 		$isClosed = '1';
 		$dateClosed = current_time("Y-m-d H:i:s");
+		
 
-		$stmt = $mysqli->prepare("UPDATE
-									emptasks
-								SET
-									taskStatus = ?,
-									isClosed = ?,
-									dateClosed = ?
-								WHERE
-									empTaskId = ?"
-		);
-		$stmt->bind_param('ssss', $taskStatus, $isClosed, $dateClosed, $completeId);
-		$stmt->execute();
+		$stmt = $wpdb->update($table_name_emptasks, array('taskStatus' => $taskStatus, 'isClosed' => $isClosed,'dateClosed' => $dateClosed), array('empTaskId' => $completeId));
+		//$stmt = $mysqli->prepare("UPDATE	emptasks SET taskStatus = ?,isClosed = ?,dateClosed = ?	WHERE	empTaskId = ?");
+		//$stmt->bind_param('ssss', $taskStatus, $isClosed, $dateClosed, $completeId);
+		//$stmt->execute();
 		$msgBox = alertBox($taskMarkedCmpMsg, "<i class='fa fa-check-square'></i>", "success");
-		$stmt->close();
+		//$stmt->close();
     }
 
 	// Delete Task
@@ -34,54 +33,54 @@
     }
 
 	// Include Pagination Class
-	include('includes/pagination.php');
+	//include('includes/pagination.php');
 
 	// Create new object & pass in the number of pages and an identifier
-	$pages = new paginator($pagPages,'p');
+	//$pages = new paginator($pagPages,'p');
 
 	// Get the number of total records
-	$rows = $mysqli->query("SELECT * FROM emptasks WHERE assignedTo = ".$empId." AND isClosed = 0");
-	$total = mysqli_num_rows($rows);
+	$wpdb->get_results($query = "SELECT * FROM $table_name_emptasks WHERE assignedTo = $user_id AND isClosed = 0");
+	$total = $wpdb->num_rows; 
 
 	// Pass the number of total records
-	$pages->set_total($total);
+	//$pages->set_total($total);
 
 	// Get Data
-	$query = "SELECT
-				emptasks.empTaskId,
-				emptasks.createdBy,
-				emptasks.taskTitle,
-				emptasks.taskDesc,
-				emptasks.taskPriority,
-				emptasks.taskStatus,
-				DATE_FORMAT(emptasks.taskStart,'%M %d, %Y') AS startDate,
-				DATE_FORMAT(emptasks.taskDue,'%M %d, %Y') AS dueDate,
-				UNIX_TIMESTAMP(emptasks.taskDue) AS orderDate,
-				CONCAT(employees.empFirst,' ',employees.empLast) AS postedBy
+	$res = $wpdb-> get_results( $query = "SELECT 
+				$table_name_emptasks.empTaskId,
+				$table_name_emptasks.createdBy,
+				$table_name_emptasks.taskTitle,
+				$table_name_emptasks.taskDesc,
+				$table_name_emptasks.taskPriority,
+				$table_name_emptasks.taskStatus,
+				DATE_FORMAT($table_name_emptasks.taskStart,'%M %d, %Y') AS startDate,
+				DATE_FORMAT($table_name_emptasks.taskDue,'%M %d, %Y') AS dueDate,
+				UNIX_TIMESTAMP($table_name_emptasks.taskDue) AS orderDate,
+				CONCAT($table_name_employees.empFirst,' ',$table_name_employees.empLast) AS postedBy
 			FROM
-				emptasks
-				LEFT JOIN employees ON emptasks.createdBy = employees.empId
+				$table_name_emptasks
+				LEFT JOIN $table_name_employees ON $table_name_emptasks.createdBy = $table_name_employees.user_id
 			WHERE
-				emptasks.assignedTo = ".$empId." AND emptasks.isClosed = 0
+				$table_name_emptasks.assignedTo = ".$user_id." AND emptasks.isClosed = 0
 			ORDER BY
-				orderDate ".$pages->get_limit();
-    $res = mysqli_query($mysqli, $query) or die('-1'.mysqli_error());
+				orderDate ".$pagPages,ARRAY_A);
+    $res_numrows = $wpdb->num_rows;
 
-	include 'includes/navigation.php';
+	
 ?>
 <div class="content">
-	<h3><?php echo $pageName; ?></h3>
+	<h3><?php //echo $pageName; ?></h3>
 	<?php if ($msgBox) { echo $msgBox; } ?>
 
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#home" data-toggle="tab"><i class="fa fa-tasks"></i> <?php echo $openTasksNavLink; ?></a></li>
-		<li><a href="index.php?page=closedTasks"><i class="fa fa-check-square"></i> <?php echo $closedTasksNavLink; ?></a></li>
-		<li class="pull-right"><a href="index.php?page=newTask" class="bg-success"><i class="fa fa-plus-square"></i> <?php echo $newTaskNavLink; ?></a></li>
+		<li><a href="index.php?page=closedtasks"><i class="fa fa-check-square"></i> <?php echo $closedTasksNavLink; ?></a></li>
+		<li class="pull-right"><a href="?page=newtask" class="bg-success"><i class="fa fa-plus-square"></i> <?php echo $newTaskNavLink; ?></a></li>
 	</ul>
 
 	<div class="tab-content">
 		<div class="tab-pane in active" id="home">
-			<?php if(mysqli_num_rows($res) < 1) { ?>
+			<?php if($res_numrows < 1) { ?>
 				<div class="alertMsg default">
 					<i class="fa fa-minus-square-o"></i> <?php echo $noOpenTasksFound; ?>
 				</div>
@@ -97,7 +96,8 @@
 							<th><?php echo $dateDueField; ?></th>
 							<th></th>
 						</tr>
-						<?php while ($row = mysqli_fetch_assoc($res)) { ?>
+						<?php foreach ($res as $row) { ?>
+							print_r($row);
 							<tr>
 								<td data-th="<?php echo $taskTitleField; ?>">
 									<a href="index.php?page=viewTask&taskId=<?php echo $row['empTaskId']; ?>" data-toggle="tooltip" data-placement="right" title="<?php echo $viewTaskTooltip; ?>">
@@ -159,9 +159,9 @@
 					</tbody>
 				</table>
 			<?php
-					if ($total > $pagPages) {
-						echo $pages->page_links();
-					}
+					//if ($total > $pagPages) {
+					//	echo $pages->page_links();
+					//}
 				}
 			?>
 		</div>

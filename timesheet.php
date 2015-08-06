@@ -20,6 +20,9 @@ global $wpdb;
 
 
 
+
+
+
 add_action('admin_menu','wphidenag');
 
 	function wphidenag() {
@@ -97,20 +100,23 @@ if(!empty($records[0])){
 add_action('admin_menu', 'register_timesheet_menu');
 function register_timesheet_menu(){
 
+
     add_menu_page('page_timesheet', 'Time Sheet', 'upload_files', 'timesheet_dashboard','timesheet_menu_dashboard', plugins_url( 'wp-timesheet/images/bullet.png' ), 6 ); 
 
     $dashboard_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_dashboard', 'TSH Dashboard', 'upload_files', 'timesheet_dashboard' );
 
-    $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'upload_files', 'timesheet_mytime',  'timesheet_menu_mytime');
-    $tasks_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_tasks', 'Tasks', 'upload_files', 'timesheet_tasks',  'timesheet_menu_tasks');
+    $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'upload_files', 'mytime',  'timesheet_menu_mytime');
+    $tasks_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_tasks', 'Tasks', 'upload_files', 'tasks',  'timesheet_menu_tasks');
+     $newtask_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_newtask', 'New Task', 'upload_files', 'newtask',  'timesheet_menu_newtask');
 
-    add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'timesheet_newemployee',  'timesheet_menu_newEmployee');  
- 	add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'timesheet_listemployees',  'timesheet_menu_listEmployees');  
+    add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'newemployee',  'timesheet_menu_newEmployee');  
+ 	add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'listemployees',  'timesheet_menu_listEmployees');  
 
 // Load the JS conditionally
         add_action( 'load-' . $dashboard_style, 'load_admin_js' );
         add_action( 'load-' . $mytime_style, 'load_mytime_js' );
         add_action( 'load-' . $tasks_style, 'load_mytime_js' );
+        add_action( 'load-' . $newtask_style, 'load_mytime_js' );
 }
 
 function load_admin_js(){
@@ -152,6 +158,10 @@ function timesheet_menu_dashboard(){
  //wp_enqueue_script('datetimepicker1');
 //    wp_enqueue_style('datetimepicker1',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/bootstrap.css');
 
+
+global $current_user;
+$user_id = $current_user->ID;
+
 ?>
 <div class="wrap">
 
@@ -180,12 +190,31 @@ include('pages/time.php');
 
 function timesheet_menu_tasks(){
 	include ('language/en.php');	
+	global $wpdb;
+	global $current_user;
+$user_id = $current_user->ID;
 ?>
 <div class="wrap">
 <h4>Tasks</h4>
 <?php
 //include('includes/functions.php');
 include('pages/tasks.php');
+?>
+</div>
+<?php
+}
+
+function timesheet_menu_newtask(){
+	include ('language/en.php');	
+	global $wpdb;
+	global $current_user;
+$user_id = $current_user->ID;
+?>
+<div class="wrap">
+<h4>New Task</h4>
+<?php
+//include('includes/functions.php');
+include('pages/newtask.php');
 ?>
 </div>
 <?php

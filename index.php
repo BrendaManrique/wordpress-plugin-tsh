@@ -6,8 +6,8 @@
 		session_start();
 		if (!isset($_SESSION['empId'])) {
 			header ('Location: login.php');
-			exit;
-		}
+			exit;  
+		}  
 
 		// Logout
 		if (isset($_GET['action'])) {

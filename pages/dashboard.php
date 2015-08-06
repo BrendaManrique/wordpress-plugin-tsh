@@ -10,9 +10,9 @@ $table_name_employees = $wpdb->base_prefix . 'tsh_employees';
 $table_name_emptasks = $wpdb->base_prefix . 'tsh_emptasks';
 
 
-global $current_user;
-get_currentuserinfo();
-$user_id = $current_user->ID;
+//global $current_user;
+//get_currentuserinfo();
+//$user_id = $current_user->ID;
 $weekNo = getWeekNo(current_time("Y-m-d"));
 $clockYear = current_time("Y");
 $startTime = $endTime = current_time("Y-m-d H:i:s");
