@@ -195,7 +195,7 @@ function timesheet_menu_tasks(){
 $user_id = $current_user->ID;
 ?>
 <div class="wrap">
-<h4>Tasks</h4>
+<h4>Tasks</h4> 
 <?php
 //include('includes/functions.php');
 include('pages/tasks.php');
