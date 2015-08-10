@@ -112,11 +112,26 @@ function register_timesheet_menu(){
     add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'newemployee',  'timesheet_menu_newEmployee');  
  	add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'listemployees',  'timesheet_menu_listEmployees');  
 
+add_submenu_page('timesheet_dashboard', 'page_timesheet_separator', '- - - - - - - ', 'manage_options', '',  '');  
+    $timecards_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_timecards', 'Manage Time Cards', 'manage_options', 'timecards',  'timesheet_menu_timecards');
+ $manage_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_manage', 'Manage', 'manage_options', 'manage',  'timesheet_menu_manage');
+ 
+
+
+ add_menu_page('Custom Page', 'My Custom Page', 'manage_options', 'my-top-level-slug');
+
+add_submenu_page( 'my-top-level-slug', 'My Custom Page', 'My Custom Page', 'manage_options', 'my-top-level-slug1');
+
+add_submenu_page( 'my-top-level-slug1', 'My Custom Submenu Page', 'My Custom Submenu Page', 'manage_options', 'my-secondary-slug');
+
+
 // Load the JS conditionally
         add_action( 'load-' . $dashboard_style, 'load_admin_js' );
         add_action( 'load-' . $mytime_style, 'load_mytime_js' );
         add_action( 'load-' . $tasks_style, 'load_mytime_js' );
         add_action( 'load-' . $newtask_style, 'load_mytime_js' );
+        add_action( 'load-' . $manage_style, 'load_mytime_js' );
+        add_action( 'load-' . $timecards_style, 'load_mytime_js' );
 }
 
 function load_admin_js(){
@@ -151,7 +166,7 @@ function enqueue_mytime_js(){
 	
 }
 
-function timesheet_menu_dashboard(){
+function timesheet_menu_dashboard(){ 
 	include ('language/en.php');	
 	// wp_enqueue_script('datetimepicker');
   //  wp_enqueue_style('datetimepicker',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/custom.css');
@@ -159,7 +174,9 @@ function timesheet_menu_dashboard(){
 //    wp_enqueue_style('datetimepicker1',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/bootstrap.css');
 
 
+
 global $current_user;
+//get_currentuserinfo();
 $user_id = $current_user->ID;
 
 ?>
@@ -239,6 +256,37 @@ function timesheet_menu_listEmployees(){
 <h2> List Employee</h2>
 <?php
 include('pages/listEmployees.php');
+?>
+</div>
+<?php
+}
+
+function timesheet_menu_manage(){
+	include ('language/en.php');	
+	global $wpdb;
+	global $current_user;
+$user_id = $current_user->ID;
+?>
+<div class="wrap">
+<h4>Tasks</h4> 
+<?php
+//include('includes/functions.php');
+include('pages/timeCards.php');
+?>
+</div>
+<?php
+}
+function timesheet_menu_timecards(){
+	include ('language/en.php');	
+	global $wpdb;
+	global $current_user;
+$user_id = $current_user->ID;
+?>
+<div class="wrap">
+<h4>Tasks</h4> 
+<?php
+//include('includes/functions.php');
+include('pages/timeCards.php');
 ?>
 </div>
 <?php
