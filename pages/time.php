@@ -11,6 +11,7 @@ get_currentuserinfo();
 $user_id = $current_user->ID;
  $currentYear= current_time("Y");
  $weekNo = getWeekNo(current_time("Y-m-d"));
+ 	$enableTimeEdits = '1';
 
 
 /*
@@ -185,7 +186,7 @@ $user_id = $current_user->ID;
 				<li <?php echo $setActive; ?>><a href="#<?php echo $years['clockYear']; ?>" data-toggle="tab"><?php echo $years['clockYear']; ?></a></li>
 		<?php
 			}
-			if ($set['enableTimeEdits'] == '1') {
+			if ($enableTimeEdits == '1') {
 				echo '<li class="pull-right"><a href="#addTime" data-toggle="modal" class="bg-success">'.$manTimeEntryBtn.'</a></li>';
 			}
 		?>
@@ -285,7 +286,7 @@ $user_id = $current_user->ID;
 											<th><?php echo $dateOutField; ?></th>
 											<th><?php echo $timeOutField; ?></th>
 											<th><?php echo $hoursText; ?></th>
-											<?php if ($set['enableTimeEdits'] == '1') { ?>
+											<?php if ($enableTimeEdits == '1') { ?>
 												<th></th>
 											<?php } ?>
 										</tr>
@@ -311,9 +312,9 @@ $user_id = $current_user->ID;
 													<td data-th="<?php echo $dateOutField; ?>"><?php echo $col['dateEnded']; ?></td>
 													<td data-th="<?php echo $timeOutField; ?>"><?php echo $col['hourEnded']; ?></td>
 													<td data-th="<?php echo $hoursText; ?>"><?php echo $lineTotal; ?></td>
-													<?php if ($set['enableTimeEdits'] == '1') { ?>
+													<?php if ($enableTimeEdits == '1') { ?>
 														<td data-th="<?php echo $actionText; ?>">
-															<a href="index.php?page=viewTime&entryId=<?php echo $col['entryId']; ?>">
+															<a href="admin.php?page=viewtime&entryId=<?php echo $col['entryId']; ?>">
 																<i class="fa fa-edit text-info" data-toggle="tooltip" data-placement="left" title="<?php echo $editTimeTooltip; ?>"></i>
 															</a>
 															<a data-toggle="modal" href="#deleteTime<?php echo $col['entryId']; ?>">
@@ -323,7 +324,7 @@ $user_id = $current_user->ID;
 													<?php } ?>
 												</tr>
 
-												<?php if ($set['enableTimeEdits'] == '1') { ?>
+												<?php if ($enableTimeEdits == '1') { ?>
 													<div class="modal fade" id="deleteTime<?php echo $col['entryId']; ?>" tabindex="-1" role="dialog" aria-hidden="true">
 														<div class="modal-dialog">
 															<div class="modal-content">
@@ -369,7 +370,7 @@ $user_id = $current_user->ID;
 	</div>
 </div>
 
-<?php if ($set['enableTimeEdits'] == '1') { ?>
+<?php if ($enableTimeEdits == '1') { ?>
 	<div id="addTime" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
 		<div class="modal-dialog">
 			<div class="modal-content">

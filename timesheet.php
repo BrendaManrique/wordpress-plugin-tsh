@@ -114,7 +114,8 @@ function register_timesheet_menu(){
 
 add_submenu_page('timesheet_dashboard', 'page_timesheet_separator', '- - - - - - - ', 'manage_options', '',  '');  
     $timecards_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_timecards', 'Manage Time Cards', 'manage_options', 'timecards',  'timesheet_menu_timecards');
- $manage_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_manage', 'Manage', 'manage_options', 'manage',  'timesheet_menu_manage');
+ $updatetime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_updatetime', 'Update Time', 'manage_options', 'updatetime',  'timesheet_menu_updatetime');
+ $viewtime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_viewtime', 'View Time', 'manage_options', 'viewtime',  'timesheet_menu_viewtime');
  
 
 
@@ -132,6 +133,8 @@ add_submenu_page( 'my-top-level-slug1', 'My Custom Submenu Page', 'My Custom Sub
         add_action( 'load-' . $newtask_style, 'load_mytime_js' );
         add_action( 'load-' . $manage_style, 'load_mytime_js' );
         add_action( 'load-' . $timecards_style, 'load_mytime_js' );
+        add_action( 'load-' . $updatetime_style, 'load_mytime_js' );
+        add_action( 'load-' . $viewtime_style, 'load_mytime_js' );
 }
 
 function load_admin_js(){
@@ -156,6 +159,7 @@ function enqueue_mytime_js(){
 // Isn't it nice to use dependencies and the already registered core js files?
 	wp_enqueue_script( 'viewTime-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/includes/viewTime.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );	
 	wp_enqueue_script( 'timeCards-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/includes/timeCards.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
+	wp_enqueue_script( 'bootstrap-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/bootstrap.min.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
 	
 	wp_enqueue_script( 'custom-script', get_option('siteurl') . '/wp-content/plugins/wp-timesheet/js/custom.js', array( 'jquery-ui-core', 'jquery-ui-tabs' ) );
 	wp_enqueue_style('custom',get_option('siteurl') . '/wp-content/plugins/wp-timesheet/css/custom.css');
@@ -261,21 +265,6 @@ include('pages/listEmployees.php');
 <?php
 }
 
-function timesheet_menu_manage(){
-	include ('language/en.php');	
-	global $wpdb;
-	global $current_user;
-$user_id = $current_user->ID;
-?>
-<div class="wrap">
-<h4>Tasks</h4> 
-<?php
-//include('includes/functions.php');
-include('pages/timeCards.php');
-?>
-</div>
-<?php
-}
 function timesheet_menu_timecards(){
 	include ('language/en.php');	
 	global $wpdb;
@@ -283,14 +272,46 @@ function timesheet_menu_timecards(){
 $user_id = $current_user->ID;
 ?>
 <div class="wrap">
-<h4>Tasks</h4> 
+<h4>Time Cards</h4> 
 <?php
-//include('includes/functions.php');
+include('includes/functions.php');
 include('pages/timeCards.php');
 ?>
 </div>
 <?php
 }
+
+function timesheet_menu_updatetime(){
+	include ('language/en.php');	
+	global $wpdb;
+	global $current_user;
+$user_id = $current_user->ID;
+?>
+<div class="wrap">
+<h4>Update Time</h4> 
+<?php
+include('includes/functions.php');
+include('pages/updateTime.php');
+?>
+</div>
+<?php
+}
+function timesheet_menu_viewtime(){
+	include ('language/en.php');	
+	global $wpdb;
+	global $current_user;
+$user_id = $current_user->ID;
+?>
+<div class="wrap">
+<h4>View Time</h4> 
+<?php
+include('includes/functions.php');
+include('pages/viewTime.php');
+?>
+</div>
+<?php
+}
+
 
 /*************
 * SETTINGS

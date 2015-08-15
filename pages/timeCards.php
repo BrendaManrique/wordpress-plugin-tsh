@@ -1,7 +1,12 @@
 <?php
 global $wpdb;
 $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
- $currentYear= current_time("Y");
+$table_name_compiled = $wpdb->base_prefix . 'tsh_compiled'; 
+$table_name_timeentry = $wpdb->base_prefix . 'tsh_timeentry';
+$table_name_employees = $wpdb->base_prefix . 'tsh_employees';
+$currentYear= current_time("Y");
+$weekNum = getWeekNo(current_time("Y-m-d"));
+$isAdmin = '1';
 
 
 	$datePicker = 'true';
@@ -24,13 +29,15 @@ $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 		if ($isCompiled != '') {
 			$msgBox = alertBox($leaveAllReadyCompiledMsg, "<i class='icon-remove-sign'></i>", "danger");
 		} else {
-			$empIds = "SELECT empId FROM employees WHERE isActive = 1";
-			$idRes = mysqli_query($mysqli, $empIds) or die('-0' . mysqli_error());
-			// Set each into an array
-			$eid = array();
-			while($e = mysqli_fetch_assoc($idRes)) {
-				$eid[] = $e['empId'];
-			}
+			$eid = $mysqli->query("SELECT user_id FROM $table_name_compiled WHERE isActive = 1");
+		
+			// $empIds = "SELECT empId FROM employees WHERE isActive = 1";
+			// $idRes = mysqli_query($mysqli, $empIds) or die('-0' . mysqli_error());
+			// // Set each into an array
+			// $eid = array();
+			// while($e = mysqli_fetch_assoc($idRes)) {
+			// 	$eid[] = $e['empId'];
+			// }
 
 			// Add the hours to the DB for each active Employee
 			if (!empty($eid)) {
@@ -112,9 +119,10 @@ $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 			<i class="fa fa-warning"></i> <?php echo $permissionDenied; ?>
 		</div>
 	</div>
-<?php } else { ?>
+<?php } else {
+ ?>
 	<div class="content">
-		<h3><?php echo $pageName+'se supone qe es nombre de pagina'; ?></h3>
+		<!--<h3><?php echo $pageName."se supone qe es nombre de pagina"; ?></h3>-->
 		<?php if ($msgBox) { echo $msgBox; } ?>
 
 		<ul class="nav nav-tabs">
@@ -129,40 +137,38 @@ $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 		<div class="tab-content">
 			<?php
 				foreach ($years as $pane) {
+					$paneyear=$pane['clockYear'];
 					if ($pane['clockYear'] == $currentYear) { $isActive = 'in active'; } else { $isActive = ''; }
-					$res = $wpdb->get_results( 
-						$query=" SELECT weekNo,clockYear FROM $table_name_timeclock WHERE clockYear = $pane['clockYear'] 
+					$res = $wpdb->get_results( $query=" SELECT weekNo, clockYear 
+						FROM $table_name_timeclock 
+						WHERE  	 clockYear = $paneyear
 						GROUP BY weekNo
-							ORDER BY
-								clockYear DESC,
-								weekNo DESC",ARRAY_A);
+							ORDER BY clockYear DESC , weekNo DESC",ARRAY_A);
 				
 				?>
+				
 				<div class="tab-pane <?php echo $isActive; ?>" id="year<?php echo $pane; ?>">
 					<?php
 						echo '<dl class="accordion no-margin">';
-						while ($row = mysqli_fetch_assoc($res)) {
+						foreach ( $res as $row) {
 							$weekNo = $row['weekNo'];
 							$clockYear = $row['clockYear'];
 
 							// Get Total Time Worked for the Current Week
-							$qry = "SELECT
-										TIMEDIFF(timeentry.endTime,timeentry.startTime) AS diff
+							$times = $wpdb->get_results( 
+									$query=" SELECT
+										TIMEDIFF($table_name_timeentry.endTime,$table_name_timeentry.startTime) AS diff
 									FROM
-										timeclock
-										LEFT JOIN timeentry ON timeclock.clockId = timeentry.clockId
+										$table_name_timeclock
+										LEFT JOIN $table_name_timeentry ON $table_name_timeclock.clockId = $table_name_timeentry.clockId
 									WHERE
-										timeclock.weekNo = '".$weekNo."' AND
-										timeclock.clockYear = '".$clockYear."' AND
-										timeentry.endTime != '0000-00-00 00:00:00'";
-							$results = mysqli_query($mysqli, $qry) or die('-4'.mysqli_error());
-							$times = array();
-							while ($u = mysqli_fetch_assoc($results)) {
-								$times[] = $u['diff'];
-							}
+										$table_name_timeclock.weekNo = $weekNo AND
+										$table_name_timeclock.clockYear = $clockYear AND
+										$table_name_timeentry.endTime != '0000-00-00 00:00:00' ");
+							
 							$totalTime = sumHours($times);
 
-							if ($weekNo == $weekNum) { $setActive = 'in'; } else { $setActive = ''; }
+							if ($weekNo == $weekNum) { $setActive = 'disabled'; } else { $setActive = ''; }
 							if (empty($times)) {
 								echo '
 										<div class="alertMsg default no-margin">
@@ -173,22 +179,28 @@ $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 					?>
 								<dt><a> <?php echo $weekLink.': '.$weekNo; ?><span><i class="fa fa-angle-right"></i></span></a></dt>
 								<dd class="hideIt">
-								<?php
+								<?php 
 									// Check if the week has all ready been compiled
-									$comp = "SELECT 'X' FROM compiled WHERE weekNo = '".$weekNo."' AND clockYear = '".$clockYear."'";
-									$compres = mysqli_query($mysqli, $comp) or die('-5' . mysqli_error());
+									$wpdb->get_results($query = "SELECT * FROM compiled WHERE weekNo = $weekNo AND clockYear = $clockYear");
+									$compres = $wpdb->num_rows; 
+
+									//$comp = "SELECT 'X' FROM compiled WHERE weekNo = '".$weekNo."' AND clockYear = '".$clockYear."'";
+									//$compres = mysqli_query($mysqli, $comp) or die('-5' . mysqli_error());
 								?>
 									<div class="row">
 										<div class="col-lg-8">
-											<p><?php echo $noEditMsg; ?></p>
+										<?php if($setActive =='disabled') { ?>
+												<p><?php echo $noEditMsg; ?></p>
+										<?php } ?>
 										</div>
 										<div class="col-lg-4">
-										<?php
-											if(mysqli_num_rows($compres) < 1) {
-												echo '<a data-toggle="modal" href="#compile'.$weekNo.$clockYear.'" class="btn btn-info btn-sm btn-icon pull-right"><i class="fa fa-cogs"></i> '.$compileText1.' '.$weekNo.' '.$compileText2.'</a>';
+										<?php 
+											if($compres < 1) {
+												echo '<a data-toggle="modal" href="#compile'.$weekNo.$clockYear.'" class="btn btn-info btn-sm btn-icon pull-right" '.$setActive.'><i class="fa fa-cogs"></i> '.$compileText1.' '.$weekNo.' '.$compileText2.'</a>';
 											} else {
 												echo '<span class="btn btn-success btn-sm btn-icon pull-right"><i class="fa fa-check-square"></i>'.$weekLink.' '.$weekNo.' '.$compileText3.'</span>';
 											}
+										
 										?>
 										</div>
 									</div>
@@ -203,88 +215,77 @@ $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 												<th><?php echo $totalHoursField; ?></th>
 											</tr>
 										<?php
-											$ids = "SELECT empId FROM employees WHERE isActive = 1";
-											$idres = mysqli_query($mysqli, $ids) or die('-6' . mysqli_error());
-											// Set each empId in an array
-											$emps = array();
-											while($e = mysqli_fetch_assoc($idres)) {
-												$emps[] = $e['empId'];
-											}
+
+							
+											$emps = $wpdb->get_results($query="SELECT user_id FROM $table_name_employees WHERE isActive = 1",ARRAY_A);
+											
 
 											foreach ($emps as $v) {
-												// Get Total Time Worked for the Current Week
-												$qry = "SELECT
-															TIMEDIFF(timeentry.endTime,timeentry.startTime) AS diff
+												// Get Total Time Worked for the Current Week per user
+												$vuser = $v['user_id'];
+												$times = $wpdb->get_results($query="SELECT
+															TIMEDIFF($table_name_timeentry.endTime,$table_name_timeentry.startTime) AS diff
 														FROM
-															timeclock
-															LEFT JOIN timeentry ON timeclock.clockId = timeentry.clockId
+															$table_name_timeclock 
+															LEFT JOIN $table_name_timeentry ON $table_name_timeclock.clockId = $table_name_timeentry.clockId
 														WHERE
-															timeclock.empId = ".$v." AND
-															timeclock.weekNo = '".$weekNo."' AND
-															timeclock.clockYear = '".$clockYear."' AND
-															timeentry.endTime != '0000-00-00 00:00:00'";
-												$results = mysqli_query($mysqli, $qry) or die('-7'.mysqli_error());
-												$times = array();
-												while ($u = mysqli_fetch_assoc($results)) {
-													$times[] = $u['diff'];
-												}
+															$table_name_timeclock.user_id = $vuser AND
+															$table_name_timeclock.weekNo = $weekNo AND
+															$table_name_timeclock.clockYear = $clockYear AND
+															$table_name_timeentry.endTime != '0000-00-00 00:00:00'");
+									
 												$totalTime = sumHours($times);
-
+												
 												// Get Data
-												$sqlStmt = "SELECT
-															employees.empId,
-															CONCAT(employees.empFirst,' ',employees.empLast) AS empName
+												$sqlres = $wpdb->get_results($query= "SELECT
+															$table_name_employees.user_id,
+															CONCAT($table_name_employees.user_id,'Emp name 238') AS empName
 														FROM
-															timeclock
-															LEFT JOIN employees ON timeclock.empId = employees.empId
+															$table_name_timeclock
+															LEFT JOIN $table_name_employees ON $table_name_timeclock.user_id = $table_name_employees.user_id
 														WHERE
-															timeclock.empId = ".$v." AND
-															timeclock.weekNo = ".$weekNo." AND
-															timeclock.clockYear = ".$clockYear;
-												$sqlres = mysqli_query($mysqli, $sqlStmt) or die('-8' . mysqli_error());
-												while ($a = mysqli_fetch_assoc($sqlres)) {
+															$table_name_timeclock.user_id = $vuser  AND
+															$table_name_timeclock.weekNo = $weekNo AND
+															$table_name_timeclock.clockYear = $clockYear", ARRAY_A);
+												foreach ($sqlres as $a) {
 										?>
 													<tr>
-														<td><a href="index.php?page=viewTimecards&eid=<?php echo $a['empId']; ?>"><?php echo $a['empName']; ?></a></td>
+														<td><a href="admin.php?page=updatetime&eid=<?php echo $a['user_id']; ?>"><?php echo $a['empName']; ?></a></td>
 														<?php
 															for ($day = 0; $day <= 6; $day++) {
 																$theDay = date('Y-m-d', strtotime($clockYear.'W'.$weekNo.$day));
 																// Get the Total Hours per day
-																$stmt = "SELECT
-																			TIMEDIFF(endTime,startTime) AS total
+																
+																$dayTotals  = $wpdb->get_results($query= "SELECT
+																			TIMEDIFF(endTime,startTime) AS diff
 																		FROM
-																			timeentry
+																			$table_name_timeentry
 																		WHERE
-																			empId = ".$v." AND
-																			entryDate = '".$theDay."' AND
-																			endTime != '0000-00-00 00:00:00'";
-																$result = mysqli_query($mysqli, $stmt) or die('-9'.mysqli_error());
-																$dayTotals = array();
-																while ($rows = mysqli_fetch_assoc($result)) {
-																	$dayTotals[] = $rows['total'];
-																}
+																			user_id = $vuser AND
+																			entryDate = '$theDay' AND
+																			endTime != '0000-00-00 00:00:00'");
+															
 																$totalHours = sumHours($dayTotals);
-
-																$i = "SELECT
+																
+																$id  = $wpdb->get_row($query= "SELECT
 																		entryId,
-																		timeentry.entryDate,
-																		DATE_FORMAT(timeentry.entryDate,'%Y-%m-%d') AS theDate,
-																		timeentry.startTime,
-																		DATE_FORMAT(timeentry.startTime,'%Y-%m-%d') AS startDate,
-																		DATE_FORMAT(timeentry.startTime,'%H:%i') AS timeStart,
-																		timeentry.endTime,
-																		DATE_FORMAT(timeentry.endTime,'%Y-%m-%d') AS endDate,
-																		DATE_FORMAT(timeentry.endTime,'%H:%i') AS timeEnd,
-																		CONCAT(employees.empFirst,' ',employees.empLast) AS theEmp
+																		$table_name_timeentry.entryDate,
+																		DATE_FORMAT($table_name_timeentry.entryDate,'%Y-%m-%d') AS theDate,
+																		$table_name_timeentry.startTime,
+																		DATE_FORMAT($table_name_timeentry.startTime,'%Y-%m-%d') AS startDate,
+																		DATE_FORMAT($table_name_timeentry.startTime,'%H:%i') AS timeStart,
+																		$table_name_timeentry.endTime,
+																		DATE_FORMAT($table_name_timeentry.endTime,'%Y-%m-%d') AS endDate,
+																		DATE_FORMAT($table_name_timeentry.endTime,'%H:%i') AS timeEnd,
+																		$table_name_employees.user_id,'Emp name 238' AS theEmp
 																	FROM
-																		timeentry
-																		LEFT JOIN employees ON timeentry.empId = employees.empId
-																	WHERE timeentry.empId = ".$v." AND timeentry.entryDate = '".$theDay."'";
-																$d = mysqli_query($mysqli, $i) or die('-10'.mysqli_error());
-																$id = mysqli_fetch_assoc($d);
+																		$table_name_timeentry
+																		LEFT JOIN $table_name_employees ON $table_name_timeentry.user_id = $table_name_employees.user_id
+																	WHERE $table_name_timeentry.user_id = $vuser AND $table_name_timeentry.entryDate = '$theDay'", ARRAY_A);
+																
 
 																if (($id['entryId'] != '') && ($id['endTime'] != '0000-00-00 00:00:00')) {
-																	$editable = '<a href="index.php?page=updateTime&date='.$id['entryDate'].'&empId='.$v.'"><i class="fa fa-edit" data-toggle="tooltip" data-placement="top" title="'.$editTimeTooltip.'"></i></a>';
+																	$editable = '<a href="admin.php?page=updatetime&date='.$id['entryDate'].'&user_id='.$vuser.'"><i class="fa fa-edit" data-toggle="tooltip" data-placement="top" title="'.$editTimeTooltip.'"></i></a>';
 																} else {
 																	$editable = '';
 																}
@@ -292,6 +293,7 @@ $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 																<td><?php echo $totalHours.' '.$editable; ?></td>
 
 																<div id="compile<?php echo $weekNo.$clockYear; ?>" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+																	
 																	<div class="modal-dialog">
 																		<div class="modal-content">
 
@@ -333,4 +335,5 @@ $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 			<?php } ?>
 		</div>
 	</div>
-<?php } ?>
+<?php }
+ ?>
