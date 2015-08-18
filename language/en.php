@@ -717,7 +717,7 @@ $manualTimeEntrySaved		= "The Manual Time Entry has been saved.";
 
 // Employee Time Cards
 // --------------------------------------------------------------------------------------------------
-$noEditMsg					= "You can not make any time entry edits while the current week's time clock is currently running.";
+$noEditMsg					= "You can not make any time entry edits while the current day's time clock is currently running.";
 $compileText1				= "Compile Week";
 $compileText2				= "Leave Hours";
 $compileText3				= "Leave Hours Compiled";

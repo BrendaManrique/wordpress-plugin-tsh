@@ -122,7 +122,7 @@ $isAdmin = '1';
 <?php } else {
  ?>
 	<div class="content">
-		<!--<h3><?php echo $pageName."se supone qe es nombre de pagina"; ?></h3>-->
+		<!--<h3><?php echo $pageName; ?></h3>-->
 		<?php if ($msgBox) { echo $msgBox; } ?>
 
 		<ul class="nav nav-tabs">
@@ -155,7 +155,7 @@ $isAdmin = '1';
 							$clockYear = $row['clockYear'];
 
 							// Get Total Time Worked for the Current Week
-							$times = $wpdb->get_results( 
+							$times = $wpdb->get_results(  
 									$query=" SELECT
 										TIMEDIFF($table_name_timeentry.endTime,$table_name_timeentry.startTime) AS diff
 									FROM
@@ -189,7 +189,7 @@ $isAdmin = '1';
 								?>
 									<div class="row">
 										<div class="col-lg-8">
-										<?php if($setActive =='disabled') { ?>
+										<?php if($setActive =='disabled') { ?> 
 												<p><?php echo $noEditMsg; ?></p>
 										<?php } ?>
 										</div>
