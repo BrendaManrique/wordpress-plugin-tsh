@@ -195,11 +195,11 @@ $isAdmin = '1';
 										</div>
 										<div class="col-lg-4">
 										<?php 
-											if($compres < 1) {
-												echo '<a data-toggle="modal" href="#compile'.$weekNo.$clockYear.'" class="btn btn-info btn-sm btn-icon pull-right" '.$setActive.'><i class="fa fa-cogs"></i> '.$compileText1.' '.$weekNo.' '.$compileText2.'</a>';
-											} else {
-												echo '<span class="btn btn-success btn-sm btn-icon pull-right"><i class="fa fa-check-square"></i>'.$weekLink.' '.$weekNo.' '.$compileText3.'</span>';
-											}
+											//if($compres < 1) { 
+											//	echo '<a data-toggle="modal" href="#compile'.$weekNo.$clockYear.'" class="btn btn-info btn-sm btn-icon pull-right" '.$setActive.'><i class="fa fa-cogs"></i> '.$compileText1.' '.$weekNo.' '.$compileText2.'</a>';
+											//} else {
+											//	echo '<span class="btn btn-success btn-sm btn-icon pull-right"><i class="fa fa-check-square"></i>'.$weekLink.' '.$weekNo.' '.$compileText3.'</span>';
+											//}
 										
 										?>
 										</div>
@@ -250,7 +250,9 @@ $isAdmin = '1';
 												foreach ($sqlres as $a) {
 										?>
 													<tr>
-														<td><a href="admin.php?page=updatetime&eid=<?php echo $a['user_id']; ?>"><?php echo $a['empName']; ?></a></td>
+														<?php 
+															$user_info = get_userdata($a['user_id']); ?>
+														<td><a href="admin.php?page=updatetime&eid=<?php echo $a['user_id']; ?>"><?php echo $user_info->user_login.'//'.$a['empName']; ?></a></td>
 														<?php
 															for ($day = 0; $day <= 6; $day++) {
 																$theDay = date('Y-m-d', strtotime($clockYear.'W'.$weekNo.$day));

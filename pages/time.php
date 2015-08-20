@@ -11,7 +11,7 @@ get_currentuserinfo();
 $user_id = $current_user->ID;
  $currentYear= current_time("Y");
  $weekNo = getWeekNo(current_time("Y-m-d"));
- 	$enableTimeEdits = '1';
+ 	$enableTimeEdits = '0';
 
 
 /*
