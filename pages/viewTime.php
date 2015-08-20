@@ -100,7 +100,7 @@
 					$table_name_timeedits.editedBy,
 					DATE_FORMAT($table_name_timeedits.editedDate,'%M %d, %Y at %h:%i %p') AS editedDate,
 					$table_name_timeedits.editReason,
-					CONCAT($table_name_employees.user_id,' ','user') AS editedBy
+					CONCAT($table_name_employees.user_id,' ','user') AS editedByN
 				FROM
 					$table_name_timeedits
 					LEFT JOIN $table_name_employees ON $table_name_timeedits.editedBy = $table_name_employees.user_id
@@ -215,7 +215,8 @@
 					<?php foreach ($results as $rows) { ?>
 						<tr>
 							<td data-th="<?php echo $updateDateField; ?>"><?php echo $rows['editedDate']; ?></td>
-							<td data-th="<?php echo $updatedByField; ?>"><?php echo clean($rows['editedBy']); ?></td>
+							<?php $user_info = get_userdata($rows['editedBy']); ?>
+							<td data-th="<?php echo $updatedByField; ?>"><?php echo $user_info->user_login; ?></td>
 							<td data-th="<?php echo $reasonForEditField; ?>"><?php echo clean($rows['editReason']); ?></td>
 						</tr>
 					<?php } ?>

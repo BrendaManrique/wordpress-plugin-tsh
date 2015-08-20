@@ -26,14 +26,16 @@ html {
 }
 body {
     font-family: 'Open Sans', sans-serif !important;
-    background: url("../images/bg.png") repeat scroll 0 0 #ffffff;
+    /*background: url("../images/bg.png") repeat scroll 0 0 #ffffff;
     -webkit-font-smoothing: antialiased;
-    -webkit-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;*/
+
     cursor: default;
     font-size: 16px;
 	color: #535a6c;
 	font-weight: 300;
 	margin-bottom: 175px;
+	background-color: #f1f1f1 !important;
 }
 
 

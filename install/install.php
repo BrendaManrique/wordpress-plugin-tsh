@@ -2,7 +2,7 @@
 //WordPress 3.5 or more: $wpdb->get_charset_collate() support characters
 
 global $jal_db_version;
-$jal_db_version = '1.782';
+$jal_db_version = '1.79';
 
 //Check Upgrade
 function myplugin_update_db_check() {
@@ -70,7 +70,7 @@ function jal_install() {
 		empSalaryTerm varchar(100) COLLATE utf8_bin NOT NULL DEFAULT 'Year',
 		leaveHours int(3) NOT NULL DEFAULT '0',
 		empHireDate timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-		isActive int(1) NOT NULL DEFAULT '0',
+		isActive int(1) NOT NULL DEFAULT '1',
 		empLastVisited timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
 		empTerminationDate timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
 		terminationReason varchar(255) COLLATE utf8_bin DEFAULT NULL,

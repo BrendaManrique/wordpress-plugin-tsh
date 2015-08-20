@@ -28,7 +28,7 @@
 <div class="wrap">
 
     <div class="icon32 icon32-posts-post" id="icon-edit"><br></div>
-    <h2><?php _e('Employees', 'employee_list_table')?> <a class="add-new-h2"
+    <h2><?php _e('List Employees', 'employee_list_table')?> <a class="add-new-h2"
                                  href="<?php echo get_admin_url(get_current_blog_id(), 'admin.php?page=newemployee');?>"><?php _e('Add new', 'employee_list_table')?></a>
     </h2>
     <?php echo $message; ?>

@@ -250,9 +250,8 @@ $isAdmin = '1';
 												foreach ($sqlres as $a) {
 										?>
 													<tr>
-														<?php 
-															$user_info = get_userdata($a['user_id']); ?>
-														<td><a href="admin.php?page=updatetime&eid=<?php echo $a['user_id']; ?>"><?php echo $user_info->user_login.'//'.$a['empName']; ?></a></td>
+														<?php $user_info = get_userdata($a['user_id']); ?>
+														<td><a href="admin.php?page=updatetime&eid=<?php echo $a['user_id']; ?>"><?php echo $user_info->user_login ?></a></td>
 														<?php
 															for ($day = 0; $day <= 6; $day++) {
 																$theDay = date('Y-m-d', strtotime($clockYear.'W'.$weekNo.$day));

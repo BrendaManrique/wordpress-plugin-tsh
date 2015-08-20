@@ -106,16 +106,16 @@ function register_timesheet_menu(){
     $dashboard_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_dashboard', 'TSH Dashboard', 'upload_files', 'timesheet_dashboard' );
 
     $mytime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_mytime', 'My Time', 'upload_files', 'mytime',  'timesheet_menu_mytime');
-    $tasks_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_tasks', 'Tasks', 'upload_files', 'tasks',  'timesheet_menu_tasks');
-     $newtask_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_newtask', 'New Task', 'upload_files', 'newtask',  'timesheet_menu_newtask');
+    $tasks_style =add_submenu_page('', 'page_timesheet_tasks', 'Tasks', 'upload_files', 'tasks',  'timesheet_menu_tasks');
+     $newtask_style =add_submenu_page('', 'page_timesheet_newtask', 'New Task', 'upload_files', 'newtask',  'timesheet_menu_newtask');
 
-    add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'newemployee',  'timesheet_menu_newEmployee');  
- 	add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'listemployees',  'timesheet_menu_listEmployees');  
+    $newemployee_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_newemployee', 'New Employee', 'manage_options', 'newemployee',  'timesheet_menu_newEmployee');  
+ 	$listemployees_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_listemployees', 'List Employees', 'manage_options', 'listemployees',  'timesheet_menu_listEmployees');  
 
 add_submenu_page('timesheet_dashboard', 'page_timesheet_separator', '- - - - - - - ', 'manage_options', '',  '');  
     $timecards_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_timecards', 'Manage Time Cards', 'manage_options', 'timecards',  'timesheet_menu_timecards');
- $updatetime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_updatetime', 'Update Time', 'manage_options', 'updatetime',  'timesheet_menu_updatetime');
- $viewtime_style =add_submenu_page('timesheet_dashboard', 'page_timesheet_viewtime', 'View Time', 'manage_options', 'viewtime',  'timesheet_menu_viewtime');
+ $updatetime_style =add_submenu_page('', 'page_timesheet_updatetime', 'Update Time', 'manage_options', 'updatetime',  'timesheet_menu_updatetime');
+ $viewtime_style =add_submenu_page('', 'page_timesheet_viewtime', 'View Time', 'manage_options', 'viewtime',  'timesheet_menu_viewtime');
  
 
 
@@ -135,6 +135,8 @@ add_submenu_page( 'my-top-level-slug1', 'My Custom Submenu Page', 'My Custom Sub
         add_action( 'load-' . $timecards_style, 'load_mytime_js' );
         add_action( 'load-' . $updatetime_style, 'load_mytime_js' );
         add_action( 'load-' . $viewtime_style, 'load_mytime_js' );
+        add_action( 'load-' . $newemployee_style, 'load_mytime_js' );
+        add_action( 'load-' . $listemployees_style, 'load_mytime_js' );
 }
 
 function load_admin_js(){
@@ -200,7 +202,7 @@ function timesheet_menu_mytime(){
 	include ('language/en.php');	
 ?>
 <div class="wrap">
-<h4>My Time</h4>
+<h2>My Time</h2>
 <?php
 include('includes/functions.php');
 include('pages/time.php');
@@ -216,7 +218,7 @@ function timesheet_menu_tasks(){
 $user_id = $current_user->ID;
 ?>
 <div class="wrap">
-<h4>Tasks</h4> 
+<h2>Tasks</h2> 
 <?php
 //include('includes/functions.php');
 include('pages/tasks.php');
@@ -232,7 +234,7 @@ function timesheet_menu_newtask(){
 $user_id = $current_user->ID;
 ?>
 <div class="wrap">
-<h4>New Task</h4>
+<h2>New Task</h2>
 <?php
 //include('includes/functions.php');
 include('pages/newtask.php');
@@ -245,7 +247,7 @@ function timesheet_menu_newEmployee(){
 	include ('language/en.php');	
 ?>
 <div class="wrap">
-<h2> New Employee</h2>
+<!--<h2> New Employee</h2>-->
 <?php
 include('pages/newEmployee.php');
 ?>
@@ -257,7 +259,7 @@ function timesheet_menu_listEmployees(){
 	include ('language/en.php');	
 ?>
 <div class="wrap">
-<h2> List Employee</h2>
+<!--<h2> List Employees</h2>-->
 <?php
 include('pages/listEmployees.php');
 ?>
@@ -272,7 +274,7 @@ function timesheet_menu_timecards(){
 $user_id = $current_user->ID;
 ?>
 <div class="wrap">
-<h4>Time Cards</h4> 
+<h2>Time Cards</h2> 
 <?php
 include('includes/functions.php');
 include('pages/timeCards.php');
@@ -288,7 +290,7 @@ function timesheet_menu_updatetime(){
 $user_id = $current_user->ID;
 ?>
 <div class="wrap">
-<h4>Update Time</h4> 
+<h2>Update Time</h2> 
 <?php
 include('includes/functions.php');
 include('pages/updateTime.php');
@@ -303,7 +305,7 @@ function timesheet_menu_viewtime(){
 $user_id = $current_user->ID;
 ?>
 <div class="wrap">
-<h4>View Time</h4> 
+<h2>View Time</h2> 
 <?php
 include('includes/functions.php');
 include('pages/viewTime.php');

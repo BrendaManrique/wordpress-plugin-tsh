@@ -10,8 +10,8 @@
 	
 	// Delete Time Entry
 	if (isset($_POST['submit']) && $_POST['submit'] == 'deleteTime') {
-		$entryId = $mysqli->real_escape_string($_POST['entryId']);
-		$wpdb->$wpdb->delete( $table_name_timeentry, array( 'entryId' => $entryId ) );
+		$entryId =  sanitize_text_field($_POST['entryId']);
+		$wpdb->delete( $table_name_timeentry, array( 'entryId' => $entryId ) );
 		$msgBox = alertBox($timeEntryDeletedMsg, "<i class='fa fa-check-square'></i>", "success");
     }
 	
@@ -44,7 +44,7 @@
 	$resnum = $wpdb->num_rows; 
     
 	// Get the Employee's Name
-	$emp =  $wpdb->get_row($query= "SELECT CONCAT('user',' ',user_id) AS theEmp FROM  $table_name_employees WHERE user_id = ".$user_id, ARRAY_A);
+	//$emp =  $wpdb->get_row($query= "SELECT CONCAT('user',' ',user_id) AS theEmp FROM  $table_name_employees WHERE user_id = ".$user_id, ARRAY_A);
 
 	if ($isAdmin != '1') {
 ?>
@@ -56,7 +56,8 @@
 	</div>
 <?php } else { ?>
 	<div class="content">
-		<h3><?php echo $pageName.' '.$forText.' '.$emp['theEmp']; ?></h3>
+		<?php $user_info = get_userdata($user_id); ?>
+		<h3><?php echo $pageName.' '.$forText.' '.$user_info->user_login; ?></h3>
 		<?php if ($msgBox) { echo $msgBox; } ?>
 		
 		<?php if($resnum < 1) { ?>
@@ -110,7 +111,8 @@
 												<form action="" method="post">
 													<div class="modal-body">
 														<p class="lead">
-															<?php echo $deleteTimeConf; ?><br /><?php echo $row['dateStarted']; ?> &mdash; <?php echo $totalHoursField.': '.$totalTime; ?>?
+
+															<?php echo $deleteTimeConf.' '.$user_info->user_login; ?><br /><?php echo $row['dateStarted']; ?> &mdash; <?php echo $totalHoursField.': '.$totalTime; ?>?
 														</p>
 													</div>
 													<div class="modal-footer">
