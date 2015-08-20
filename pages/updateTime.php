@@ -1,5 +1,6 @@
 <?php
 	$date = $_GET['date'];
+	$week = $_GET['week'];
 	$user_id = $_GET['user_id'];
 	$datePicker = 'true';	
 	$table_name_employees = $wpdb->base_prefix . 'tsh_employees';
@@ -15,6 +16,35 @@
 		$msgBox = alertBox($timeEntryDeletedMsg, "<i class='fa fa-check-square'></i>", "success");
     }
 	
+    if ($date == ''){
+    // Get Data
+	$res =  $wpdb->get_results( $query=" SELECT 
+				$table_name_timeentry.entryId,
+				$table_name_timeentry.clockId,
+				$table_name_timeentry.user_id,
+				$table_name_timeentry.entryDate,
+				DATE_FORMAT($table_name_timeentry.entryDate,'%M %d, %Y') AS eDate,
+				DATE_FORMAT($table_name_timeentry.startTime,'%M %d, %Y') AS dateStarted,
+				DATE_FORMAT($table_name_timeentry.startTime,'%h:%i %p') AS hourStarted,
+				$table_name_timeentry.startTime,
+				$table_name_timeentry.endTime,
+				DATE_FORMAT($table_name_timeentry.endTime,'%M %d, %Y') AS dateEnded,
+				DATE_FORMAT($table_name_timeentry.endTime,'%h:%i %p') AS hourEnded,
+				$table_name_timeentry.entryType,
+				$table_name_timeclock.clockId,
+				$table_name_timeclock.weekNo,
+				$table_name_timeclock.clockYear,
+				$table_name_timeclock.running,
+				CONCAT($table_name_employees.user_id,'user')  AS theEmp
+			FROM
+				$table_name_timeentry
+				LEFT JOIN $table_name_timeclock ON $table_name_timeentry.clockId = $table_name_timeclock.clockId
+				LEFT JOIN $table_name_employees ON $table_name_timeentry.user_id = $table_name_employees.user_id
+			WHERE
+				$table_name_timeentry.user_id = $user_id AND
+				$table_name_timeclock.weekNo = $week",ARRAY_A);
+	$resnum = $wpdb->num_rows; 
+}else{
 	// Get Data
 	$res =  $wpdb->get_results( $query=" SELECT
 				$table_name_timeentry.entryId,
@@ -39,8 +69,9 @@
 				LEFT JOIN $table_name_timeclock ON $table_name_timeentry.clockId = $table_name_timeclock.clockId
 				LEFT JOIN $table_name_employees ON $table_name_timeentry.user_id = $table_name_employees.user_id
 			WHERE
-				$table_name_timeentry.entryDate = '".$date."' AND
-				$table_name_timeentry.user_id = ".$user_id,ARRAY_A);
+				$table_name_timeentry.entryDate = '$date' AND
+				$table_name_timeentry.user_id = $user_id",ARRAY_A);
+}
 	$resnum = $wpdb->num_rows; 
     
 	// Get the Employee's Name

@@ -235,7 +235,7 @@ $isAdmin = '1';
 															$table_name_timeentry.endTime != '0000-00-00 00:00:00'");
 									
 												$totalTime = sumHours($times);
-												
+												 
 												// Get Data
 												$sqlres = $wpdb->get_results($query= "SELECT
 															$table_name_employees.user_id,
@@ -251,7 +251,7 @@ $isAdmin = '1';
 										?>
 													<tr>
 														<?php $user_info = get_userdata($a['user_id']); ?>
-														<td><a href="admin.php?page=updatetime&eid=<?php echo $a['user_id']; ?>"><?php echo $user_info->user_login ?></a></td>
+														<td><a href="admin.php?page=updatetime&user_id=<?php echo $a['user_id']; ?>&week=<?php echo $weekNo; ?>"><?php echo $user_info->user_login ?></a></td>
 														<?php
 															for ($day = 0; $day <= 6; $day++) {
 																$theDay = date('Y-m-d', strtotime($clockYear.'W'.$weekNo.$day));
