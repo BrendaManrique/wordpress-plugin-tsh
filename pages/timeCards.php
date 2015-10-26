@@ -4,6 +4,8 @@ $table_name_timeclock = $wpdb->base_prefix . 'tsh_timeclock';
 $table_name_compiled = $wpdb->base_prefix . 'tsh_compiled'; 
 $table_name_timeentry = $wpdb->base_prefix . 'tsh_timeentry';
 $table_name_employees = $wpdb->base_prefix . 'tsh_employees';
+$table_name_leaveearned = $wpdb->base_prefix . 'tsh_leaveearned';
+
 $currentYear= current_time("Y");
 $weekNum = getWeekNo(current_time("Y-m-d"));
 $isAdmin = '1';
@@ -15,35 +17,32 @@ $isAdmin = '1';
 	// Compile Leave
     if (isset($_POST['submit']) && $_POST['submit'] == 'compileLeave') {
 		$isCompiled = '';
-		$compileWeek = $mysqli->real_escape_string($_POST['compileWeek']);
-		$compileYear = $mysqli->real_escape_string($_POST['compileYear']);
+		$compileWeek = sanitize_text_field($_POST['compileWeek']);
+		$compileYear = sanitize_text_field($_POST['compileYear']);
 		$dateComplied = date("Y-m-d H:i:s");
 
 		// Check if the week has all ready been compiled
-		$check = $mysqli->query("SELECT 'X' FROM compiled WHERE weekNo = '".$compileWeek."' AND clockYear = '".$compileYear."'");
-		if ($check->num_rows) {
+		$wpdb->get_results( 
+					$query=" SELECT * FROM $table_name_compiled  WHERE weekNo = '$compileWeek' AND clockYear = '$compileYear'",ARRAY_A);
+
+		if ( $wpdb->num_rows) {
 			$isCompiled = 'true';
 		}
 
 		// If week has all ready been compiled
 		if ($isCompiled != '') {
 			$msgBox = alertBox($leaveAllReadyCompiledMsg, "<i class='icon-remove-sign'></i>", "danger");
-		} else {
-			$eid = $mysqli->query("SELECT user_id FROM $table_name_compiled WHERE isActive = 1");
+		} else {		
+			$eid = $wpdb->get_results( 
+					$query=" SELECT user_id FROM $table_name_employees WHERE isActive = 1",ARRAY_A);
+
 		
-			// $empIds = "SELECT empId FROM employees WHERE isActive = 1";
-			// $idRes = mysqli_query($mysqli, $empIds) or die('-0' . mysqli_error());
-			// // Set each into an array
-			// $eid = array();
-			// while($e = mysqli_fetch_assoc($idRes)) {
-			// 	$eid[] = $e['empId'];
-			// }
 
 			// Add the hours to the DB for each active Employee
-			if (!empty($eid)) {
-				$sqlStmt = sprintf("
-								INSERT INTO leaveearned (
-									empId,
+			if (!empty($eid)) { //avoid attacks
+			/*	$sqlStmt = sprintf("
+								INSERT INTO $table_name_leaveearned (
+									user_id,
 									weekNo,
 									clockYear,
 									leaveHours,
@@ -57,14 +56,30 @@ $isAdmin = '1';
 								)"
 				);
 
-				foreach($eid as $key => $value) {
-					$empHrs = "SELECT leaveHours FROM employees WHERE empId = ".$value;
-					$hrsRes = mysqli_query($mysqli, $empHrs) or die('-1' . mysqli_error());
-					$h = mysqli_fetch_assoc($hrsRes);
+				
+
+				$metakey	= "Harriet's Adages";
+				$metavalue	= "WordPress' database interface is like Sunday Morning: Easy.";
+
+				$wpdb->query( $wpdb->prepare( 
+					"
+						INSERT INTO $wpdb->postmeta
+						( post_id, meta_key, meta_value )
+						VALUES ( %d, %s, %s )
+					", 
+				        10, 
+					$metakey, 
+					$metavalue 
+				) );*/
+
+				foreach($eid as $value) {
+					$h = $wpdb->get_results( 
+							$query=" SELECT leaveHours FROM $table_name_employees WHERE user_id = $value['user_id']",ARRAY_A);
+
 					$amtofleave = $h['leaveHours'];
 					
-					$compileWeek = $mysqli->real_escape_string($_POST['compileWeek']);
-					$compileYear = $mysqli->real_escape_string($_POST['compileYear']);
+					$compileWeek = sanitize_text_field($_POST['compileWeek']);
+					$compileYear = sanitize_text_field($_POST['compileYear']);
 					$dateEntered = date("Y-m-d H:i:s");
 
 					if($stmt = $mysqli->prepare($sqlStmt)) {

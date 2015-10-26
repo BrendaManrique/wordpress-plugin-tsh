@@ -2,8 +2,8 @@
 /**
 * Plugin Name: WP-TimeSheet
 * Plugin URI: http://brendamanrique.com/
-* Description: Timesheet plugin for Borough Construction
-* Version: 1.0
+* Description: Timesheet plugin for BC
+* Version: 2.0
 * Author: Brenda Manrique
 * Author URI: http://brendamanrique.com/
 * License:  GPL2
